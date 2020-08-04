@@ -10,6 +10,11 @@ class _HomeState extends State<Home> {
   bool _showPassword = true;
   bool _showPassRegis = true;
 
+  var _shadow = BoxShadow(
+    color: Colors.blueGrey,
+    blurRadius: 10,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,15 +26,30 @@ class _HomeState extends State<Home> {
 
   Widget _login() {
     return Container(
+      color: Colors.blue[100],
+      height: MediaQuery.of(context).size.height,
       child: SingleChildScrollView(
         child: Column(
           children: [
             Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(),
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
+                ),
+                child: Image.asset("assets/images/image.jpeg"),
+              ),
+            ),
+            Container(
               margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               decoration: BoxDecoration(
+                  boxShadow: [_shadow],
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.blue[100]),
+                  color: Colors.white),
               child: TextField(
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: "Email",
                   prefixIcon: Icon(Icons.email),
@@ -40,8 +60,9 @@ class _HomeState extends State<Home> {
             Container(
               margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               decoration: BoxDecoration(
+                  boxShadow: [_shadow],
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.blue[100]),
+                  color: Colors.white),
               child: TextField(
                 obscureText: _showPassword,
                 decoration: InputDecoration(
@@ -67,20 +88,23 @@ class _HomeState extends State<Home> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  RaisedButton(
-                    color: Colors.blue,
-                    onPressed: () {
-                      setState(() {
-                        _page = "Login";
-                      });
-                    },
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        color: Colors.white,
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      decoration: BoxDecoration(
+                        boxShadow: [_shadow],
+                        color: Colors.blue,
+                      ),
+                      child: Text(
+                        "Login",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -116,14 +140,25 @@ class _HomeState extends State<Home> {
 
   Widget _register() {
     return Container(
+      height: MediaQuery.of(context).size.height,
+      color: Colors.blue[100],
       child: SingleChildScrollView(
         child: Column(
           children: [
             Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset("assets/images/img.png"),
+              ),
+            ),
+            Container(
               margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               decoration: BoxDecoration(
+                  boxShadow: [_shadow],
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.blue[100]),
+                  color: Colors.white),
               child: TextField(
                 decoration: InputDecoration(
                   labelText: "Nama Lengkap",
@@ -135,9 +170,11 @@ class _HomeState extends State<Home> {
             Container(
               margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               decoration: BoxDecoration(
+                  boxShadow: [_shadow],
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.blue[100]),
+                  color: Colors.white),
               child: TextField(
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: "Email",
                   prefixIcon: Icon(Icons.email),
@@ -148,8 +185,9 @@ class _HomeState extends State<Home> {
             Container(
               margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               decoration: BoxDecoration(
+                  boxShadow: [_shadow],
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.blue[100]),
+                  color: Colors.white),
               child: TextField(
                 obscureText: _showPassRegis,
                 decoration: InputDecoration(
@@ -175,20 +213,23 @@ class _HomeState extends State<Home> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  RaisedButton(
-                    color: Colors.blue,
-                    onPressed: () {
-                      setState(() {
-                        _page = "Login";
-                      });
-                    },
-                    child: Text(
-                      "Register",
-                      style: TextStyle(
-                        color: Colors.white,
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      decoration: BoxDecoration(
+                        boxShadow: [_shadow],
+                        color: Colors.blue,
+                      ),
+                      child: Text(
+                        "Register",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
