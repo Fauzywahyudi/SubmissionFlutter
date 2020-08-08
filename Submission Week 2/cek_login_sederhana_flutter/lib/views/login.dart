@@ -4,6 +4,8 @@ import 'package:cek_login_sederhana_flutter/views/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -14,6 +16,8 @@ class _LoginState extends State<Login> {
   bool _showPassword = true;
   TextEditingController _tecUsername = TextEditingController();
   TextEditingController _tecPassword = TextEditingController();
+  FocusNode _focUsername = FocusNode();
+  FocusNode _focPassword = FocusNode();
 
   var _shadow = BoxShadow(
     color: Colors.blueGrey,
@@ -45,6 +49,53 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Widget _sosmed() {
+    return Container(
+      margin: EdgeInsets.only(top: 30),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(EvaIcons.google, color: Colors.red),
+              onPressed: () {},
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blueAccent,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(
+                EvaIcons.facebook,
+                color: Colors.white,
+              ),
+              onPressed: () {},
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(
+                EvaIcons.twitter,
+                color: Colors.white,
+              ),
+              onPressed: () {},
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Column _buildForm() {
     return Column(
       children: <Widget>[
@@ -56,7 +107,12 @@ class _LoginState extends State<Login> {
               borderRadius: BorderRadius.circular(20),
               color: Colors.white),
           child: TextField(
+            focusNode: _focUsername,
             controller: _tecUsername,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (v) {
+              FocusScope.of(context).requestFocus(_focPassword);
+            },
             decoration: InputDecoration(
               labelText: "Username",
               prefixIcon: Icon(Icons.person),
@@ -71,8 +127,13 @@ class _LoginState extends State<Login> {
               borderRadius: BorderRadius.circular(20),
               color: Colors.white),
           child: TextField(
+            focusNode: _focPassword,
             controller: _tecPassword,
             obscureText: _showPassword,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (v) {
+              _focPassword.unfocus();
+            },
             decoration: InputDecoration(
               labelText: "Password",
               prefixIcon: Icon(Icons.lock),
@@ -108,7 +169,7 @@ class _LoginState extends State<Login> {
                   child: Text("Login",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 25,
+                        fontSize: 20,
                         color: Colors.blue,
                       )),
                 ),
@@ -117,6 +178,15 @@ class _LoginState extends State<Login> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("Login With",
+              style: GoogleFonts.lato(
+                  fontSize: 17,
+                  color: Colors.blueAccent,
+                  fontWeight: FontWeight.bold)),
+        ),
+        _sosmed()
       ],
     );
   }
@@ -135,7 +205,7 @@ class _LoginState extends State<Login> {
             ),
           ),
           Text(
-            "Login",
+            "Login System",
             style: GoogleFonts.mcLaren(
                 fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
           )
@@ -165,7 +235,19 @@ class _LoginState extends State<Login> {
         ),
       );
     } else {
-      print("username atau password salah");
+      _buildDialog();
     }
+  }
+
+  _buildDialog() {
+    return AwesomeDialog(
+        context: context,
+        dialogType: DialogType.ERROR,
+        animType: AnimType.BOTTOMSLIDE,
+        title: 'Login Failed',
+        desc: 'Username atau Password Salah!',
+        btnOkOnPress: () {},
+        btnOkColor: Colors.blue)
+      ..show();
   }
 }
