@@ -15,6 +15,22 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  var boxShadow2 =
+      BoxShadow(color: Colors.black12, spreadRadius: 10, blurRadius: 10);
+  List<IconData> _iconList = [
+    EvaIcons.facebook,
+    EvaIcons.twitter,
+    EvaIcons.github,
+    EvaIcons.google
+  ];
+  List<String> _titleList = ["Facebook", "Twitter", "Github", "Google"];
+  List<Color> _colorList = [
+    Colors.blue,
+    Colors.lightBlue,
+    Colors.black,
+    Colors.red
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,11 +38,51 @@ class _HomeState extends State<Home> {
       // floatingActionButton: _buildFloatingActionButton(),
       body: SafeArea(
         child: Container(
+          height: MediaQuery.of(context).size.height,
           child: Stack(
             children: <Widget>[
               Container(
                 height: MediaQuery.of(context).size.height,
                 color: Colors.white,
+              ),
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.only(top: 20, left: 15, right: 15),
+                  height: MediaQuery.of(context).size.height * 0.5 - 24,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(color: Colors.white),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3),
+                    itemBuilder: (context, i) {
+                      return InkWell(
+                        onTap: () => _whenTap(
+                            _titleList[i], _iconList[i], _colorList[i]),
+                        child: Card(
+                          elevation: 5,
+                          color: Colors.blue[100],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Icon(
+                                _iconList[i],
+                                color: _colorList[i],
+                                size: 30,
+                              ),
+                              Text(
+                                _titleList[i],
+                                style: GoogleFonts.mcLaren(
+                                    color: _colorList[i], fontSize: 20),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    itemCount: _iconList.length,
+                  ),
+                ),
               ),
               Container(
                 height: MediaQuery.of(context).size.height * 0.5,
@@ -35,6 +91,7 @@ class _HomeState extends State<Home> {
                     bottomLeft: Radius.circular(70),
                     bottomRight: Radius.circular(70),
                   ),
+                  boxShadow: [boxShadow2],
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -47,23 +104,7 @@ class _HomeState extends State<Home> {
                     _buildAppBar(),
                     _buildText(),
                     Expanded(child: Container()),
-                    Container(
-                      height: MediaQuery.of(context).size.width * 0.5,
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.blue,
-                            Colors.blueGrey,
-                          ],
-                        ),
-                      ),
-                      child: SvgPicture.asset("assets/images/wellcome.svg"),
-                    )
+                    _buildImage(context),
                   ],
                 ),
               ),
@@ -74,25 +115,37 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Text _buildText() {
-    return Text("Wellcome \"${widget.username.toString().toUpperCase()}\"",
-        style: GoogleFonts.mcLaren(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ));
+  Widget _buildImage(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      height: MediaQuery.of(context).size.width * 0.5,
+      width: MediaQuery.of(context).size.width * 0.8,
+      decoration: BoxDecoration(
+        boxShadow: [
+          boxShadow2,
+        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: SvgPicture.asset("assets/images/wellcome.svg"),
+    );
   }
 
-  Row _buildAppBar() {
+  Widget _buildText() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text("Wellcome \"${widget.username.toString().toUpperCase()}\"",
+          style: GoogleFonts.mcLaren(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          )),
+    );
+  }
+
+  Widget _buildAppBar() {
     return Row(
       children: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: Colors.white,
-          ),
-          onPressed: () {},
-        ),
         Expanded(
           child: Container(),
         ),
@@ -100,17 +153,11 @@ class _HomeState extends State<Home> {
           children: <Widget>[
             IconButton(
               icon: Icon(
-                Icons.notifications,
+                Icons.exit_to_app,
                 color: Colors.white,
               ),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white,
-              ),
-              onPressed: () {},
+              tooltip: "Logout",
+              onPressed: () => _logout(),
             ),
           ],
         )
@@ -118,18 +165,38 @@ class _HomeState extends State<Home> {
     );
   }
 
-  FloatingActionButton _buildFloatingActionButton() {
-    return FloatingActionButton.extended(
-      onPressed: () => _logout(),
-      label: Text("Logout"),
-      icon: Icon(Icons.exit_to_app),
-    );
+  void _logout() {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.INFO,
+      animType: AnimType.BOTTOMSLIDE,
+      title: 'Logout',
+      desc: 'Apa anda yakin untuk logout?',
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Login(),
+          ),
+        );
+      },
+    )..show();
   }
 
-  void _logout() => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Login(),
-        ),
-      );
+  _whenTap(String title, IconData icon, Color color) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.INFO,
+      animType: AnimType.BOTTOMSLIDE,
+      customHeader: Icon(
+        icon,
+        size: 40,
+        color: color,
+      ),
+      title: title,
+      desc: '',
+      btnOkOnPress: () {},
+    )..show();
+  }
 }

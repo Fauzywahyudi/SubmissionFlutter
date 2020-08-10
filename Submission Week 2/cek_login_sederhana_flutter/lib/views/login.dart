@@ -234,18 +234,22 @@ class _LoginState extends State<Login> {
           ),
         ),
       );
+    } else if (_tecUsername.text == "" || _tecPassword.text == "") {
+      _buildDialog(DialogType.INFO, "Login Failed",
+          "Username atau Password tidak boleh kosong!");
     } else {
-      _buildDialog();
+      _buildDialog(
+          DialogType.ERROR, "Login Failed", "Username atau Password Salah!");
     }
   }
 
-  _buildDialog() {
+  _buildDialog(DialogType tipe, String title, String msg) {
     return AwesomeDialog(
         context: context,
-        dialogType: DialogType.ERROR,
+        dialogType: tipe,
         animType: AnimType.BOTTOMSLIDE,
-        title: 'Login Failed',
-        desc: 'Username atau Password Salah!',
+        title: title,
+        desc: msg,
         btnOkOnPress: () {},
         btnOkColor: Colors.blue)
       ..show();
