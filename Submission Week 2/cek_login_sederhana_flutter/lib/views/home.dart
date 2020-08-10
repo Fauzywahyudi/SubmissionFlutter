@@ -1,15 +1,14 @@
 import 'package:cek_login_sederhana_flutter/views/login.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
 class Home extends StatefulWidget {
   final username;
+  final password;
 
-  const Home({Key key, this.username}) : super(key: key);
+  const Home({Key key, this.username, this.password}) : super(key: key);
   @override
   _HomeState createState() => _HomeState();
 }
@@ -17,19 +16,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var boxShadow2 =
       BoxShadow(color: Colors.black12, spreadRadius: 10, blurRadius: 10);
-  List<IconData> _iconList = [
-    EvaIcons.facebook,
-    EvaIcons.twitter,
-    EvaIcons.github,
-    EvaIcons.google
-  ];
-  List<String> _titleList = ["Facebook", "Twitter", "Github", "Google"];
-  List<Color> _colorList = [
-    Colors.blue,
-    Colors.lightBlue,
-    Colors.black,
-    Colors.red
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -39,77 +25,96 @@ class _HomeState extends State<Home> {
       body: SafeArea(
         child: Container(
           height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: MediaQuery.of(context).size.height,
-                color: Colors.white,
-              ),
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  padding: EdgeInsets.only(top: 20, left: 15, right: 15),
-                  height: MediaQuery.of(context).size.height * 0.5 - 24,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(color: Colors.white),
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3),
-                    itemBuilder: (context, i) {
-                      return InkWell(
-                        onTap: () => _whenTap(
-                            _titleList[i], _iconList[i], _colorList[i]),
-                        child: Card(
-                          elevation: 5,
-                          color: Colors.blue[100],
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Icon(
-                                _iconList[i],
-                                color: _colorList[i],
-                                size: 30,
-                              ),
-                              Text(
-                                _titleList[i],
-                                style: GoogleFonts.mcLaren(
-                                    color: _colorList[i], fontSize: 20),
-                              ),
-                            ],
+          child: SingleChildScrollView(
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  height: MediaQuery.of(context).size.height,
+                  color: Colors.white,
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                      padding: EdgeInsets.only(left: 15, right: 15),
+                      height: MediaQuery.of(context).size.height * 0.5 - 24,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(color: Colors.white),
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Parsing Data",
+                              style: GoogleFonts.lato(
+                                  fontSize: 30, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    itemCount: _iconList.length,
+                          _buildListTile("Username", widget.username),
+                          Divider(
+                            indent: 15,
+                          ),
+                          _buildListTile("Password", widget.password),
+                          Divider(
+                            indent: 15,
+                          ),
+                          RaisedButton.icon(
+                              onPressed: () => _logout(),
+                              color: Colors.blue,
+                              textColor: Colors.white,
+                              icon: Icon(Icons.exit_to_app),
+                              label: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text("Logout"),
+                              ))
+                        ],
+                      )),
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(70),
+                      bottomRight: Radius.circular(70),
+                    ),
+                    boxShadow: [boxShadow2],
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.blue, Colors.lightBlue[200]],
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      // _buildAppBar(),
+                      SizedBox(height: 30),
+                      _buildText(),
+                      Expanded(child: Container()),
+                      _buildImage(context),
+                    ],
                   ),
                 ),
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.5,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(70),
-                    bottomRight: Radius.circular(70),
-                  ),
-                  boxShadow: [boxShadow2],
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.blue, Colors.lightBlue[200]],
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    _buildAppBar(),
-                    _buildText(),
-                    Expanded(child: Container()),
-                    _buildImage(context),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  ListTile _buildListTile(String property, String value) {
+    return ListTile(
+      title: RichText(
+        text: TextSpan(
+          text: '$property : ',
+          style: TextStyle(color: Colors.black, fontSize: 18),
+          children: <TextSpan>[
+            TextSpan(
+              text: ' $value',
+              style: GoogleFonts.mcLaren(
+                  fontWeight: FontWeight.bold, color: Colors.blue),
+            )
+          ],
         ),
       ),
     );
@@ -143,28 +148,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildAppBar() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Container(),
-        ),
-        Row(
-          children: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.exit_to_app,
-                color: Colors.white,
-              ),
-              tooltip: "Logout",
-              onPressed: () => _logout(),
-            ),
-          ],
-        )
-      ],
-    );
-  }
-
   void _logout() {
     AwesomeDialog(
       context: context,
@@ -181,22 +164,6 @@ class _HomeState extends State<Home> {
           ),
         );
       },
-    )..show();
-  }
-
-  _whenTap(String title, IconData icon, Color color) {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.INFO,
-      animType: AnimType.BOTTOMSLIDE,
-      customHeader: Icon(
-        icon,
-        size: 40,
-        color: color,
-      ),
-      title: title,
-      desc: '',
-      btnOkOnPress: () {},
     )..show();
   }
 }

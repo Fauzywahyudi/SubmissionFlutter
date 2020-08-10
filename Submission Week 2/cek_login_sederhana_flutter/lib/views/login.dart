@@ -231,6 +231,7 @@ class _LoginState extends State<Login> {
         MaterialPageRoute(
           builder: (context) => Home(
             username: _tecUsername.text,
+            password: _tecPassword.text,
           ),
         ),
       );
