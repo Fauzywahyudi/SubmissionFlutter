@@ -32,6 +32,7 @@ class _HomeState extends State<Home> {
     fontWeight: FontWeight.bold,
   );
   final f = new NumberFormat("#,##0.00", "en_US");
+  // final fOperasi = new NumberFormat("#,##0.0000", "en_US");
   var _operator = "";
   var _operasi = "";
   bool _showResult = false;
@@ -139,9 +140,9 @@ class _HomeState extends State<Home> {
                   duration: const Duration(milliseconds: 200),
                   child: Text(
                     _showResult && (num.parse(_textHasilOperasi) % 1 == 0)
-                        ? _textHasilOperasi
+                        ? "= " + _textHasilOperasi
                         : _showResult && (num.parse(_textHasilOperasi) % 1 < 1)
-                            ? f.format(num.parse(_textHasilOperasi))
+                            ? "= " + f.format(num.parse(_textHasilOperasi))
                             : "",
                   ),
                 ),
@@ -222,14 +223,15 @@ class _HomeState extends State<Home> {
       } else {
         _operasi += tap;
       }
-      // _perhitungan += tap;
     });
   }
 
   _tapOperator(String tap) {
     if (_showResult) {
       setState(() {
-        _operasi = _hasilOperasi.toString();
+        _operasi = num.parse(_textHasilOperasi) % 1 < 1
+            ? f.format(num.parse(_textHasilOperasi))
+            : _textHasilOperasi;
         _showResult = false;
         _dataAngka.clear();
         _dataAngka.add(_operasi);
@@ -316,13 +318,6 @@ class _HomeState extends State<Home> {
         print(_operator);
       });
     }
-
-    // else {
-    //   _tapAdd(tap);
-    //   setState(() {
-    //     _operator = tap;
-    //   });
-    // }
   }
 
   _penjumlahan(var data) {
@@ -360,6 +355,4 @@ class _HomeState extends State<Home> {
       _dataAngka.clear();
     });
   }
-
-  // _refresh() {}
 }
