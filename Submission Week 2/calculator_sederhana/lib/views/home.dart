@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,17 +20,25 @@ class _HomeState extends State<Home> {
     fontWeight: FontWeight.bold,
   );
 
+  var _styleTextHasil = TextStyle(
+    color: Colors.white,
+    fontSize: 40,
+    fontWeight: FontWeight.bold,
+  );
+
   var _styleTextButton = TextStyle(
     color: Colors.white,
     fontSize: 25,
     fontWeight: FontWeight.bold,
   );
+  final f = new NumberFormat("#,##0.00", "en_US");
   var _operator = "";
   var _operasi = "";
   bool _showResult = false;
   String get _textOperasi => _operasi;
   num _hasilOperasi = 0;
   String get _textHasilOperasi => _hasilOperasi.toString();
+  var _dataAngka = List();
 
   @override
   Widget build(BuildContext context) {
@@ -114,15 +123,27 @@ class _HomeState extends State<Home> {
             bottom: 10,
             right: 10,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                Text(
-                  _textOperasi,
-                  style: _styleTextPerhitungan,
+                AnimatedDefaultTextStyle(
+                  textAlign: TextAlign.right,
+                  style: _showResult ? _styleTextPerhitungan : _styleTextHasil,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    _textOperasi,
+                  ),
                 ),
-                Text(
-                  "",
-                  // "${_hasilPerhitungan.toString().length > 0 ? "= $_hasilPerhitungan" : ""} ",
-                  style: _styleTextPerhitungan,
+                AnimatedDefaultTextStyle(
+                  textAlign: TextAlign.right,
+                  style: _showResult ? _styleTextHasil : _styleTextPerhitungan,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    _showResult && (num.parse(_textHasilOperasi) % 1 == 0)
+                        ? _textHasilOperasi
+                        : _showResult && (num.parse(_textHasilOperasi) % 1 < 1)
+                            ? f.format(num.parse(_textHasilOperasi))
+                            : "",
+                  ),
                 ),
               ],
             ),
@@ -195,10 +216,9 @@ class _HomeState extends State<Home> {
   _tapAdd(var tap) {
     setState(() {
       if (_showResult) {
-        // _perhitungan = "";
-        // _hasilPerhitungan = "";
-        // _equal = false;
-        // _parameter = 0;
+        _showResult = false;
+        _operator = "";
+        _operasi = tap;
       } else {
         _operasi += tap;
       }
@@ -207,43 +227,85 @@ class _HomeState extends State<Home> {
   }
 
   _tapOperator(String tap) {
-    setState(() {
-      if (_showResult) {
-        // _perhitungan = "";
-        // _hasilPerhitungan = "";
-        // _equal = false;
-        // _parameter = 0;
+    if (_showResult) {
+      setState(() {
+        _operasi = _hasilOperasi.toString();
+        _showResult = false;
+        _dataAngka.clear();
+        _dataAngka.add(_operasi);
+        _operator = tap;
+        _operasi += tap;
+      });
+    } else {
+      _getLast(tap);
+      if (_operator.isNotEmpty) {
+        _tapEqual();
       } else {
-        _getLast(tap);
-        if (_operator.isNotEmpty) {
-          _tapEqual();
-        } else {
+        setState(() {
+          _dataAngka.add(_operasi.substring(0, _operasi.length));
           _operasi += tap;
           _operator = tap;
-          print(_operator);
-        }
+        });
       }
-      // _perhitungan += tap;
-    });
+    }
   }
 
   _tapClear() {
     setState(() {
       _operasi = "";
       _operator = "";
+      _hasilOperasi = null;
+      _dataAngka.clear();
+      _showResult = false;
     });
   }
 
   _tapDel() {
-    setState(() {
-      if (_operasi.length < 1) {
-      } else {
-        _operasi = _operasi.substring(0, _operasi.length - 1);
-      }
-    });
+    if (_showResult) {
+      setState(() {
+        _showResult = false;
+        _operasi = "";
+        _operator = "";
+      });
+    } else {
+      setState(() {
+        if (_operasi.length < 1) {
+        } else {
+          var last = _operasi.substring(_operasi.length - 1);
+          if (last == "/" || last == "*" || last == "-" || last == "+") {
+            _operator = "";
+            print(_operator.isEmpty);
+            _dataAngka.clear();
+          }
+          _operasi = _operasi.substring(0, _operasi.length - 1);
+        }
+      });
+    }
   }
 
-  _tapEqual() {}
+  _tapEqual() {
+    if (_showResult) {
+    } else {
+      if (_operator.isNotEmpty) {
+        var data = _operasi.toString().split(_operator);
+        _dataAngka.add(data.last);
+        switch (_operator) {
+          case "+":
+            _penjumlahan(_dataAngka);
+            break;
+          case "-":
+            _pengurangan(_dataAngka);
+            break;
+          case "*":
+            _perkalian(_dataAngka);
+            break;
+          case "/":
+            _pembagian(_dataAngka);
+            break;
+        }
+      } else {}
+    }
+  }
 
   _getLast(var tap) {
     var last = _operasi.substring(_operasi.length - 1);
@@ -251,14 +313,52 @@ class _HomeState extends State<Home> {
       setState(() {
         _operasi = _operasi.substring(0, _operasi.length - 1) + tap;
         _operator = tap;
+        print(_operator);
       });
     }
+
     // else {
     //   _tapAdd(tap);
     //   setState(() {
     //     _operator = tap;
     //   });
     // }
+  }
+
+  _penjumlahan(var data) {
+    setState(() {
+      num hasil = num.parse(data[0]) + num.parse(data[1]);
+      _hasilOperasi = hasil;
+      _showResult = true;
+      _dataAngka.clear();
+    });
+  }
+
+  _pengurangan(var data) {
+    setState(() {
+      num hasil = num.parse(data[0]) - num.parse(data[1]);
+      _hasilOperasi = hasil;
+      _showResult = true;
+      _dataAngka.clear();
+    });
+  }
+
+  _perkalian(var data) {
+    setState(() {
+      num hasil = num.parse(data[0]) * num.parse(data[1]);
+      _hasilOperasi = hasil;
+      _showResult = true;
+      _dataAngka.clear();
+    });
+  }
+
+  _pembagian(var data) {
+    setState(() {
+      num hasil = num.parse(data[0]) / num.parse(data[1]);
+      _hasilOperasi = hasil;
+      _showResult = true;
+      _dataAngka.clear();
+    });
   }
 
   // _refresh() {}
