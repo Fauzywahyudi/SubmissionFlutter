@@ -71,6 +71,7 @@ class _HomeState extends State<Home> {
             Positioned(
               bottom: 0,
               child: Container(
+                padding: EdgeInsets.all(3.0),
                 height: MediaQuery.of(context).size.height * 0.5,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(),
