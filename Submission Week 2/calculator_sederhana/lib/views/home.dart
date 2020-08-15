@@ -24,12 +24,12 @@ class _HomeState extends State<Home> {
     fontSize: 25,
     fontWeight: FontWeight.bold,
   );
-
-  var _perhitungan = "";
-  var _hasilPerhitungan = "";
-  var _parameter = 0;
-  var _dataParameter = List();
-  bool _equal = false;
+  var _operator = "";
+  var _operasi = "";
+  bool _showResult = false;
+  String get _textOperasi => _operasi;
+  num _hasilOperasi = 0;
+  String get _textHasilOperasi => _hasilOperasi.toString();
 
   @override
   Widget build(BuildContext context) {
@@ -38,41 +38,12 @@ class _HomeState extends State<Home> {
         height: MediaQuery.of(context).size.height,
         child: Stack(
           children: <Widget>[
-            Container(
-              height: MediaQuery.of(context).size.height * 0.5 - 10,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(50.0),
-                ),
-                color: const Color(0xffff0045),
-              ),
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                    bottom: 10,
-                    right: 10,
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          _perhitungan,
-                          style: _styleTextPerhitungan,
-                        ),
-                        Text(
-                          "${_hasilPerhitungan.toString().length > 0 ? "= $_hasilPerhitungan" : ""} ",
-                          style: _styleTextPerhitungan,
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
+            _buildDisplay(context),
             Positioned(
               bottom: 0,
               child: Container(
                 padding: EdgeInsets.all(3.0),
-                height: MediaQuery.of(context).size.height * 0.5,
+                height: MediaQuery.of(context).size.height * 0.6,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(),
                 child: Column(
@@ -96,65 +67,9 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: Row(
-                          children: <Widget>[
-                            _buildButton(
-                              "7",
-                              Color(0xffff0045).withOpacity(0.5),
-                            ),
-                            SizedBox(width: 10),
-                            _buildButton(
-                                "8", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton(
-                                "9", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton("/", Color(0xffff0045)),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: Row(
-                          children: <Widget>[
-                            _buildButton(
-                                "4", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton(
-                                "5", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton(
-                                "6", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton("*", Color(0xffff0045)),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: Row(
-                          children: <Widget>[
-                            _buildButton(
-                                "1", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton(
-                                "2", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton(
-                                "3", Color(0xffff0045).withOpacity(0.5)),
-                            SizedBox(width: 10),
-                            _buildButton("-", Color(0xffff0045)),
-                          ],
-                        ),
-                      ),
-                    ),
+                    _buildExpanded(["7", "8", "9", "/"]),
+                    _buildExpanded(["4", "5", "6", "*"]),
+                    _buildExpanded(["1", "2", "3", "-"]),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -183,6 +98,62 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Container _buildDisplay(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.4 - 10,
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(50.0),
+        ),
+        color: const Color(0xffff0045),
+      ),
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            bottom: 10,
+            right: 10,
+            child: Column(
+              children: <Widget>[
+                Text(
+                  _textOperasi,
+                  style: _styleTextPerhitungan,
+                ),
+                Text(
+                  "",
+                  // "${_hasilPerhitungan.toString().length > 0 ? "= $_hasilPerhitungan" : ""} ",
+                  style: _styleTextPerhitungan,
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Expanded _buildExpanded(var data) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: Row(
+          children: <Widget>[
+            _buildButton(
+              data[0],
+              Color(0xffff0045).withOpacity(0.5),
+            ),
+            SizedBox(width: 10),
+            _buildButton(data[1], Color(0xffff0045).withOpacity(0.5)),
+            SizedBox(width: 10),
+            _buildButton(data[2], Color(0xffff0045).withOpacity(0.5)),
+            SizedBox(width: 10),
+            _buildButton(data[3], Color(0xffff0045)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildButton(String title, Color color) {
     bool angka;
     try {
@@ -195,17 +166,17 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(10),
         onTap: () {
           if (angka) {
-            _tapAngka(title);
+            _tapAdd(title);
           } else if (title == "C") {
             _tapClear();
           } else if (title == ".") {
-            _tapAngka(title);
+            _tapAdd(title);
           } else if (title == "DEL") {
             _tapDel();
           } else if (title == "=") {
             _tapEqual();
           } else {
-            _tapParameter(title);
+            _tapOperator(title);
           }
         },
         child: Container(
@@ -221,90 +192,74 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _tapAngka(String tap) {
+  _tapAdd(var tap) {
     setState(() {
-      if (_equal) {
-        _perhitungan = "";
-        _hasilPerhitungan = "";
-        _equal = false;
-        _parameter = 0;
+      if (_showResult) {
+        // _perhitungan = "";
+        // _hasilPerhitungan = "";
+        // _equal = false;
+        // _parameter = 0;
+      } else {
+        _operasi += tap;
       }
-      _perhitungan += tap;
+      // _perhitungan += tap;
+    });
+  }
+
+  _tapOperator(String tap) {
+    setState(() {
+      if (_showResult) {
+        // _perhitungan = "";
+        // _hasilPerhitungan = "";
+        // _equal = false;
+        // _parameter = 0;
+      } else {
+        _getLast(tap);
+        if (_operator.isNotEmpty) {
+          _tapEqual();
+        } else {
+          _operasi += tap;
+          _operator = tap;
+          print(_operator);
+        }
+      }
+      // _perhitungan += tap;
     });
   }
 
   _tapClear() {
     setState(() {
-      _perhitungan = "";
-      _hasilPerhitungan = "";
-      _parameter = 0;
-      _dataParameter.clear();
-      _equal = false;
-    });
-  }
-
-  _tapParameter(String title) {
-    setState(() {
-      var param;
-      if (_equal) {
-        _perhitungan = _hasilPerhitungan;
-        _hasilPerhitungan = "";
-        _equal = false;
-        _parameter = 0;
-      }
-      if (_parameter > 0) {
-        _tapEqual();
-      } else if (_perhitungan.length < 1) {
-      } else {
-        param = _perhitungan.substring(_perhitungan.length - 1);
-        if (param == "/" || param == "*" || param == "-" || param == "+") {
-          setState(() {
-            _perhitungan =
-                _perhitungan.substring(0, _perhitungan.length - 1) + title;
-            _dataParameter.last = title;
-          });
-        } else {
-          _tapAngka(title);
-          setState(() {
-            _dataParameter.add(title);
-            _parameter++;
-          });
-        }
-        print(_dataParameter.toString());
-        print(_parameter);
-      }
+      _operasi = "";
+      _operator = "";
     });
   }
 
   _tapDel() {
     setState(() {
-      if (_perhitungan.length < 1) {
+      if (_operasi.length < 1) {
       } else {
-        _perhitungan = _perhitungan.substring(0, _perhitungan.length - 1);
+        _operasi = _operasi.substring(0, _operasi.length - 1);
       }
     });
   }
 
-  _tapEqual() {
-    num result = 0;
-    if (_parameter == 1) {
-      var data = List();
-      data = _perhitungan.split(_dataParameter[0]);
+  _tapEqual() {}
 
-      if (_dataParameter[0] == "+") {
-        result = num.parse(data[0]) + num.parse(data[1]);
-      } else if (_dataParameter[0] == "-") {
-        result = num.parse(data[0]) - num.parse(data[1]);
-      } else if (_dataParameter[0] == "*") {
-        result = num.parse(data[0]) * num.parse(data[1]);
-      } else if (_dataParameter[0] == "/") {
-        result = num.parse(data[0]) / num.parse(data[1]);
-      }
+  _getLast(var tap) {
+    var last = _operasi.substring(_operasi.length - 1);
+    if (last == "/" || last == "*" || last == "-" || last == "+") {
+      setState(() {
+        _operasi = _operasi.substring(0, _operasi.length - 1) + tap;
+        _operator = tap;
+      });
     }
-    setState(() {
-      _hasilPerhitungan = result.toString();
-      _equal = true;
-      _parameter = 0;
-    });
+    // else {
+    //   _tapAdd(tap);
+    //   setState(() {
+    //     _operator = tap;
+    //   });
+    // }
   }
+
+  // _refresh() {}
 }
