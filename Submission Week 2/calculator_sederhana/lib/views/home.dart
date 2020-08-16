@@ -192,7 +192,7 @@ class _HomeState extends State<Home> {
           } else if (title == "C") {
             _tapClear();
           } else if (title == ".") {
-            _tapAdd(title);
+            _validTitik(title);
           } else if (title == "DEL") {
             _tapDel();
           } else if (title == "=") {
@@ -239,9 +239,18 @@ class _HomeState extends State<Home> {
         _operasi += tap;
       });
     } else {
-      _getLast(tap);
+//      _getLast(tap);
       if (_operator.isNotEmpty) {
-        _tapEqual();
+        var last = _operasi.substring(_operasi.length - 1);
+        if (last == "/" || last == "*" || last == "-" || last == "+") {
+          setState(() {
+            _operasi = _operasi.substring(0, _operasi.length - 1) + tap;
+            _operator = tap;
+            print(_operator);
+          });
+        }else{
+          _tapEqual();
+        }
       } else {
         setState(() {
           _dataAngka.add(_operasi.substring(0, _operasi.length));
@@ -249,6 +258,16 @@ class _HomeState extends State<Home> {
           _operator = tap;
         });
       }
+    }
+  }
+
+  _validTitik(var tap){
+//    var last = _operasi.substring(_operasi.length - 1);
+    if(_operator.isEmpty){
+      if(!_operasi.contains("."))_tapAdd(tap);
+    }else{
+      var angka = _operasi.split(_operator);
+      if(!angka[1].contains("."))_tapAdd(tap);
     }
   }
 
@@ -306,17 +325,6 @@ class _HomeState extends State<Home> {
             break;
         }
       } else {}
-    }
-  }
-
-  _getLast(var tap) {
-    var last = _operasi.substring(_operasi.length - 1);
-    if (last == "/" || last == "*" || last == "-" || last == "+") {
-      setState(() {
-        _operasi = _operasi.substring(0, _operasi.length - 1) + tap;
-        _operator = tap;
-        print(_operator);
-      });
     }
   }
 
