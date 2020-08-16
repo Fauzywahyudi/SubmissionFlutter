@@ -1,4 +1,5 @@
 import 'package:calculator_bmi/views/home.dart';
+import 'package:calculator_bmi/views/splashscreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,12 +11,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'BMI Calculator',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Home()
+        routes: {
+          Home.routeName: (context) => Home(),
+        },
+      home: SplashScreen()
     );
   }
 }
