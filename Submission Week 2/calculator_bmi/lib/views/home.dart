@@ -1,9 +1,11 @@
+import 'package:calculator_bmi/views/result.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:slider_button/slider_button.dart';
+import 'package:swipedetector/swipedetector.dart';
 
 class Home extends StatefulWidget {
   static const routeName = '/Home';
@@ -31,13 +33,26 @@ class _HomeState extends State<Home> {
   double get _fontSizeTitle => isShowForm ? 0 : 25;
   double get _fontSizeGender => isShowForm ? 10 : 20;
   double get _opacityForm => isShowForm ? 1 : 0;
+  double get _bb => double.parse(tecBB.text);
+  double get _tb => double.parse(tecTB.text);
+
+  bool get validasi => tecBB.text.isNotEmpty && tecTB.text.isNotEmpty;
 
   void _onPressFAB() {
-    if (!isShowForm) {
+    if (isShowForm) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Result(
+                    isMale: isMale,
+                    bb: _bb,
+                    tb: _tb,
+                  )));
+    } else {
       setState(() {
         isShowForm = !isShowForm;
       });
-    } else {}
+    }
   }
 
   _selectMale() {
@@ -53,11 +68,23 @@ class _HomeState extends State<Home> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context);
     return Scaffold(
       backgroundColor: themeColor,
-      floatingActionButton: _buildFAB(),
+      floatingActionButton: !isShowForm || validasi ?  _buildFAB() : null,
       body: SafeArea(
         child: Container(
           color: Colors.white,
@@ -95,17 +122,30 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildSelectGender() {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 500),
-      height: isShowForm
-          ? MediaQuery.of(context).size.height * 0.3
-          : MediaQuery.of(context).size.height * 0.6,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          _buildGender(_selectMale(),"man.svg", colorSelectedMale, colorSecondaryMale),
-          _buildGender(_selectFemale(),"woman.svg", colorSelectedFemale, colorSecondaryFemale),
-        ],
+    return SwipeDetector(
+      onSwipeDown: () {
+        setState(() {
+          isShowForm = false;
+        });
+      },
+      onSwipeUp: () {
+        setState(() {
+          isShowForm = true;
+        });
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 500),
+        height: isShowForm
+            ? MediaQuery.of(context).size.height * 0.3
+            : MediaQuery.of(context).size.height * 0.6,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            _buildGender("man.svg", colorSelectedMale, colorSecondaryMale),
+            _buildGender(
+                "woman.svg", colorSelectedFemale, colorSecondaryFemale),
+          ],
+        ),
       ),
     );
   }
@@ -180,29 +220,37 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildGender(Function onTap, String fileName, Color colorSelected, Color colorSecondary){
-    return  Expanded(
+  Widget _buildGender(
+      String fileName, Color colorSelected, Color colorSecondary) {
+    return Expanded(
       child: InkWell(
-        onTap: ()=>onTap,
+        onTap: () {
+          if (fileName == "man.svg") {
+            _selectMale();
+          } else {
+            _selectFemale();
+          }
+        },
         child: AnimatedContainer(
             margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-                color: colorSelected,
-                borderRadius: BorderRadius.circular(20)),
+                color: colorSelected, borderRadius: BorderRadius.circular(20)),
             duration: Duration(milliseconds: 500),
             child: Column(
               children: <Widget>[
                 Expanded(
-                    child: SvgPicture.asset(_dirImage + fileName,
-                        color: colorSecondary)),
+                    child: Hero(
+                  tag: fileName,
+                  child: SvgPicture.asset(_dirImage + fileName,
+                      color: colorSecondary),
+                )),
                 Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: AnimatedDefaultTextStyle(
                     duration: Duration(milliseconds: 500),
                     style: GoogleFonts.mcLaren(
-                        fontSize: _fontSizeGender,
-                        color: colorSecondary),
+                        fontSize: _fontSizeGender, color: colorSecondary),
                     child: Text(
                       "Male",
                     ),
