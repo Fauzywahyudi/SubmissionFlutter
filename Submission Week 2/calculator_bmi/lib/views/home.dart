@@ -1,11 +1,12 @@
 import 'package:calculator_bmi/views/result.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:line_icons/line_icons.dart';
-import 'package:slider_button/slider_button.dart';
 import 'package:swipedetector/swipedetector.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'dart:io';
 
 class Home extends StatefulWidget {
   static const routeName = '/Home';
@@ -30,13 +31,15 @@ class _HomeState extends State<Home> {
   String get _fabText => isShowForm ? "Proses" : "Pilih";
   Icon get _fabIcon => isShowForm ? Icon(Icons.play_arrow) : Icon(Icons.check);
 
-  double get _fontSizeTitle => isShowForm ? 0 : 25;
+  double get _fontSizeTitle => isShowForm ? 15 : 25;
   double get _fontSizeGender => isShowForm ? 10 : 20;
   double get _opacityForm => isShowForm ? 1 : 0;
   double get _bb => double.parse(tecBB.text);
   double get _tb => double.parse(tecTB.text);
 
   bool get validasi => tecBB.text.isNotEmpty && tecTB.text.isNotEmpty;
+  bool get isPotrait =>
+      MediaQuery.of(context).orientation == Orientation.portrait;
 
   void _onPressFAB() {
     if (isShowForm) {
@@ -67,6 +70,20 @@ class _HomeState extends State<Home> {
     });
   }
 
+  Future<bool> _dialog()async{
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.INFO,
+      animType: AnimType.BOTTOMSLIDE,
+      title: 'Exit',
+      desc: 'Yakin Keluar Aplikasi',
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      },
+    )..show();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -79,33 +96,74 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  Future<bool> _onWillPop()async{
+    if (isShowForm) {
+      setState(() {
+        isShowForm = false;
+      });
+      return false;
+    } else {
+      _dialog();
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context);
     return Scaffold(
       backgroundColor: themeColor,
-      floatingActionButton: !isShowForm || validasi ?  _buildFAB() : null,
+      floatingActionButton: !isShowForm || validasi ? _buildFAB() : null,
       body: SafeArea(
-        child: Container(
-          color: Colors.white,
-          height: media.size.height,
-          width: media.size.width,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                AnimatedDefaultTextStyle(
-                  style: GoogleFonts.mcLaren(
-                      fontSize: _fontSizeTitle, color: Colors.purple),
-                  duration: Duration(milliseconds: 500),
-                  child: Text("Select Gender"),
-                ),
-                _buildSelectGender(),
-                _buildForm(),
-              ],
-            ),
+        child: WillPopScope(
+          onWillPop: _onWillPop,
+          child: Container(
+            color: Colors.white,
+            height: media.size.height,
+            width: media.size.width,
+            child: SingleChildScrollView(
+              child: isPotrait ? _orienPotrait() : _orienLandscape(),
+            )
           ),
         ),
       ),
+    );
+  }
+
+  Widget _orienPotrait() {
+    return Column(
+      children: <Widget>[
+        AnimatedDefaultTextStyle(
+          style: GoogleFonts.mcLaren(
+              fontSize: _fontSizeTitle, color: Colors.purple),
+          duration: Duration(milliseconds: 500),
+          child: Text("Select Gender"),
+        ),
+        _buildSelectGender(),
+        _buildForm(),
+        SizedBox(height: 60,)
+      ],
+    );
+  }
+
+  Widget _orienLandscape() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(child: Column(
+          children: <Widget>[
+            AnimatedDefaultTextStyle(
+              style: GoogleFonts.mcLaren(
+                  fontSize: 15, color: Colors.purple),
+              duration: Duration(milliseconds: 500),
+              child: Text("Select Gender"),
+            ),
+            _buildSelectGender(),
+          ],
+        )),
+        Expanded(child: _buildForm()),
+      ],
     );
   }
 
@@ -122,22 +180,17 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildSelectGender() {
-    return SwipeDetector(
-      onSwipeDown: () {
-        setState(() {
-          isShowForm = false;
-        });
-      },
-      onSwipeUp: () {
-        setState(() {
-          isShowForm = true;
-        });
-      },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 500),
-        height: isShowForm
-            ? MediaQuery.of(context).size.height * 0.3
-            : MediaQuery.of(context).size.height * 0.6,
+    var media = MediaQuery.of(context);
+    return AnimatedContainer(
+      height: isShowForm && isPotrait
+          ? media.size.height * 0.3
+          : !isShowForm && isPotrait
+              ? media.size.height * 0.6
+              : media.size.height - 50,
+      duration: Duration(milliseconds: 600),
+      child: Card(
+        elevation: 3,
+        shadowColor: themeColor,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -151,22 +204,42 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildForm() {
-    return Container(
+    return AnimatedOpacity(
+      opacity: _opacityForm,
+      duration: Duration(milliseconds: 600),
       child: Column(
+
         children: <Widget>[
-          AnimatedOpacity(
-            opacity: _opacityForm,
-            duration: Duration(milliseconds: 600),
+          !isPotrait ? AnimatedDefaultTextStyle(
+            style: GoogleFonts.mcLaren(
+                fontSize: 15, color: Colors.purple),
+            duration: Duration(milliseconds: 500),
+            child: Text(""),
+          ) :Container(),
+          Card(
+            elevation: 3,
+            shadowColor: themeColor,
             child: Container(
               padding: EdgeInsets.all(10),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   AnimatedContainer(
                     decoration: BoxDecoration(
-                        color: themeColor,
-                        borderRadius: BorderRadius.circular(10)),
-                    margin: EdgeInsets.symmetric(vertical: 15),
-                    padding: EdgeInsets.symmetric(vertical: 15),
+                        color: themeColor, borderRadius: BorderRadius.circular(10)),
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    duration: Duration(milliseconds: 500),
+                    child: Text(
+                      "Silahkan Masukkan Berat Badan dan Tinggi Badan Anda",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.mcLaren(color: Colors.white, fontSize: 17),
+                    ),
+                  ),
+                  AnimatedContainer(
+                    decoration: BoxDecoration(
+                        color: themeColor, borderRadius: BorderRadius.circular(10)),
+                    padding: EdgeInsets.symmetric(vertical: 10),
                     duration: Duration(milliseconds: 500),
                     child: Row(
                       children: <Widget>[
@@ -176,7 +249,7 @@ class _HomeState extends State<Home> {
                         _textField("cm", tecTB),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -223,20 +296,20 @@ class _HomeState extends State<Home> {
   Widget _buildGender(
       String fileName, Color colorSelected, Color colorSecondary) {
     return Expanded(
-      child: InkWell(
-        onTap: () {
-          if (fileName == "man.svg") {
-            _selectMale();
-          } else {
-            _selectFemale();
-          }
-        },
-        child: AnimatedContainer(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-            padding: EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                color: colorSelected, borderRadius: BorderRadius.circular(20)),
-            duration: Duration(milliseconds: 500),
+      child: AnimatedContainer(
+          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+          padding: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+              color: colorSelected, borderRadius: BorderRadius.circular(20)),
+          duration: Duration(milliseconds: 500),
+          child: InkWell(
+            onTap: () {
+              if (fileName == "man.svg") {
+                _selectMale();
+              } else {
+                _selectFemale();
+              }
+            },
             child: Column(
               children: <Widget>[
                 Expanded(
@@ -257,8 +330,8 @@ class _HomeState extends State<Home> {
                   ),
                 )
               ],
-            )),
-      ),
+            ),
+          )),
     );
   }
 }
