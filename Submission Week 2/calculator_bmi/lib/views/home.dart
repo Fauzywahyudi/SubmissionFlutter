@@ -194,9 +194,9 @@ class _HomeState extends State<Home> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            _buildGender("man.svg", colorSelectedMale, colorSecondaryMale),
+            _buildGender("man.svg", colorSelectedMale, colorSecondaryMale,"Male"),
             _buildGender(
-                "woman.svg", colorSelectedFemale, colorSecondaryFemale),
+                "woman.svg", colorSelectedFemale, colorSecondaryFemale, "Female"),
           ],
         ),
       ),
@@ -294,7 +294,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildGender(
-      String fileName, Color colorSelected, Color colorSecondary) {
+      String fileName, Color colorSelected, Color colorSecondary, String gender) {
     return Expanded(
       child: AnimatedContainer(
           margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
@@ -325,7 +325,7 @@ class _HomeState extends State<Home> {
                     style: GoogleFonts.mcLaren(
                         fontSize: _fontSizeGender, color: colorSecondary),
                     child: Text(
-                      "Male",
+                      gender,
                     ),
                   ),
                 )
