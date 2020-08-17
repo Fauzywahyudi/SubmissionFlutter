@@ -287,7 +287,7 @@ class _HomeState extends State<Home> {
             border: InputBorder.none,
             suffixText: label,
           ),
-          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          keyboardType: TextInputType.number,
         ),
       ),
     );
