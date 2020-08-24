@@ -1,11 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:form_login_register_mahasiswa/utils/assets.dart';
 import 'package:form_login_register_mahasiswa/views/login.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:form_login_register_mahasiswa/utils/custom_path.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -47,8 +45,9 @@ class _SplashScreenState extends State<SplashScreen> {
                     padding: EdgeInsets.all(10),
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: Hero(
-                        tag: "logo",
-                        child: SvgPicture.asset(asset + "logo.svg")),
+                      tag: "logo",
+                      child: SvgPicture.asset(asset + "logo.svg"),
+                    ),
                   ),
                   SizedBox(
                     height: 30,

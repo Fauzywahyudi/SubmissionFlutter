@@ -1,17 +1,28 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:form_login_register_mahasiswa/utils/assets.dart';
 
-class CustomClipPath extends CustomClipper<Path> {
+class CustomClip extends StatelessWidget {
+  var asset = "assets/images/";
+
   @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-    path.quadraticBezierTo(
-        size.width / 2, size.height - 100, size.width, size.height);
-    path.lineTo(size.width, 0);
-
-    return path;
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        ClipPath(
+          clipper: WaveClipperOne(),
+          child: Container(
+            color: colPrimary,
+            height: 200,
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(10),
+          height: 175,
+          child: Hero(tag: "logo", child: SvgPicture.asset(asset + "logo.svg")),
+        ),
+      ],
+    );
   }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
