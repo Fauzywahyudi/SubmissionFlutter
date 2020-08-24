@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:form_login_register_mahasiswa/views/splashscreen.dart';
 
@@ -11,6 +12,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Form Mahasiswa Client Server',
         debugShowCheckedModeBanner: false,
+        navigatorObservers: [
+          BotToastNavigatorObserver()
+        ], //Register route observer
+        builder: BotToastInit(),
         theme: ThemeData(
           primarySwatch: Colors.red,
           visualDensity: VisualDensity.adaptivePlatformDensity,

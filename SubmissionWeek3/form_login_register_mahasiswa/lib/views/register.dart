@@ -1,7 +1,10 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:form_login_register_mahasiswa/utils/assets.dart';
 import 'package:form_login_register_mahasiswa/utils/custom_path.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:form_login_register_mahasiswa/utils/link.dart' as link;
 
 class Register extends StatefulWidget {
   @override
@@ -50,6 +53,29 @@ class _RegisterState extends State<Register> {
     });
   }
 
+  void _register() async {
+    final response = await http.post(link.Link.main + "register.php", body: {
+      "nim": tecNIM.text,
+      "pass": tecPassword.text,
+      "nama": tecNama.text,
+      "alamat": tecAlamat.text,
+      "jk": jenisKelamin,
+      "jurusan": _currentJurusan,
+    });
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      BotToast.showSimpleNotification(
+        title: "Sukses",
+        hideCloseButton: true,
+      );
+      Navigator.pop(context);
+    } else {
+      BotToast.showSimpleNotification(
+        title: "Gagal",
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,9 +93,10 @@ class _RegisterState extends State<Register> {
                   Text(
                     "Register",
                     style: GoogleFonts.mcLaren(
-                        color: colPrimary,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold),
+                      color: colPrimary,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(
                     height: 20,
@@ -130,6 +157,7 @@ class _RegisterState extends State<Register> {
   Center _buildButton() {
     return Center(
       child: InkWell(
+        onTap: () => _register(),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           decoration: BoxDecoration(
