@@ -42,7 +42,7 @@ class _LoginState extends State<Login> {
     if (value == 1) {
       final data = await json.decode(response['data']);
       _mahasiswa = Mahasiswa(
-        data['id_mahasiswa'],
+        int.parse(data['id_mahasiswa']),
         data['nim_mahasiswa'],
         data['password'],
         data['nama_lengkap'],

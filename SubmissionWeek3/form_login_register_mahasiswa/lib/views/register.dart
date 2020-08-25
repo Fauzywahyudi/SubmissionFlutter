@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:form_login_register_mahasiswa/utils/assets.dart';
@@ -21,6 +23,8 @@ class _RegisterState extends State<Register> {
   var focPassword = FocusNode();
   var focNama = FocusNode();
   var focAlamat = FocusNode();
+
+  final _keyForm = GlobalKey<FormState>();
 
   String jenisKelamin = "";
   List _jurusan = [
@@ -54,7 +58,7 @@ class _RegisterState extends State<Register> {
   }
 
   void _register() async {
-    final response = await http.post(link.Link.main + "register.php", body: {
+    final result = await http.post(link.Link.main + "register.php", body: {
       "nim": tecNIM.text,
       "pass": tecPassword.text,
       "nama": tecNama.text,
@@ -62,9 +66,28 @@ class _RegisterState extends State<Register> {
       "jk": jenisKelamin,
       "jurusan": _currentJurusan,
     });
+    final response = await json.decode(result.body);
+    int value = response['value'];
+    String pesan = response['message'];
+    print(pesan);
+    if (value == 1) {
+      message(context, pesan, Icons.check, colSuccess);
+      Navigator.pop(context);
+    } else if (value == 2) {
+      message(context, pesan, Icons.info, colInfo);
+    } else {
+      message(context, pesan, Icons.close, colDanger);
+    }
 
-    print(response.statusCode);
-    messageStatus(context, response.statusCode);
+    // messageStatus(context, result.statusCode);
+  }
+
+  void _cekForm() {
+    final form = _keyForm.currentState;
+    if (form.validate() && jenisKelamin.isNotEmpty) {
+      form.save();
+      _register();
+    }
   }
 
   @override
@@ -103,46 +126,49 @@ class _RegisterState extends State<Register> {
   }
 
   Widget _buildFormInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTextField(
-          hint: "NIM",
-          controller: tecNIM,
-          focus: focNIM,
-          nextFocus: focPassword,
-          inputType: TextInputType.number,
-          icon: Icons.person,
-        ),
-        _buildTextField(
-          hint: "Password",
-          controller: tecPassword,
-          focus: focPassword,
-          nextFocus: focNama,
-          icon: Icons.lock,
-          obscure: true,
-        ),
-        _buildTextField(
-          hint: "Nama Lengkap",
-          controller: tecNama,
-          focus: focNama,
-          icon: Icons.person,
-          textCapital: TextCapitalization.words,
-        ),
-        _buildRadio(),
-        _buildDropDown(),
-        _buildTextField(
-          hint: "Alamat",
-          controller: tecAlamat,
-          focus: focAlamat,
-          icon: Icons.home,
-          inputAction: TextInputAction.done,
-          minLines: 3,
-        ),
-        SizedBox(height: 20),
-        _buildButton(),
-        SizedBox(height: 20),
-      ],
+    return Form(
+      key: _keyForm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField(
+            hint: "NIM",
+            controller: tecNIM,
+            focus: focNIM,
+            nextFocus: focPassword,
+            inputType: TextInputType.number,
+            icon: Icons.person,
+          ),
+          _buildTextField(
+            hint: "Password",
+            controller: tecPassword,
+            focus: focPassword,
+            nextFocus: focNama,
+            icon: Icons.lock,
+            obscure: true,
+          ),
+          _buildTextField(
+            hint: "Nama Lengkap",
+            controller: tecNama,
+            focus: focNama,
+            icon: Icons.person,
+            textCapital: TextCapitalization.words,
+          ),
+          _buildRadio(),
+          _buildDropDown(),
+          _buildTextField(
+            hint: "Alamat",
+            controller: tecAlamat,
+            focus: focAlamat,
+            icon: Icons.home,
+            inputAction: TextInputAction.done,
+            minLines: 3,
+          ),
+          SizedBox(height: 20),
+          _buildButton(),
+          SizedBox(height: 20),
+        ],
+      ),
     );
   }
 
@@ -182,7 +208,7 @@ class _RegisterState extends State<Register> {
         ),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         focusNode: focus,
         style: textLabel,
@@ -197,12 +223,18 @@ class _RegisterState extends State<Register> {
           border: InputBorder.none,
           hintText: hint,
         ),
-        onSubmitted: (v) {
+        onEditingComplete: () {
           if (nextFocus == null) {
             focus.unfocus();
           } else {
             FocusScope.of(context).requestFocus(nextFocus);
           }
+        },
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please Input $hint';
+          }
+          return null;
         },
       ),
     );
@@ -211,7 +243,7 @@ class _RegisterState extends State<Register> {
   Center _buildButton() {
     return Center(
       child: InkWell(
-        onTap: () => _register(),
+        onTap: () => _cekForm(),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           decoration: BoxDecoration(

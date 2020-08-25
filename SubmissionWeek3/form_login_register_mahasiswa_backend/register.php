@@ -10,7 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $jk = $_POST['jk'];
     $jurusan = $_POST['jurusan'];
 
-    $resultCek = $kon->query("SELECT * FROM mahasiswa WHERE nim_mahasiswa='$nim'");
+    $sql = $kon->query("SELECT * FROM mahasiswa WHERE nim_mahasiswa='$nim'");
+    $resultCek = $sql->fetch_array();
 
     if (isset($resultCek)) {
         $response['value'] = 2;
