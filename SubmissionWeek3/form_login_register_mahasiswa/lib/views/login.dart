@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:form_login_register_mahasiswa/utils/assets.dart';
 import 'package:form_login_register_mahasiswa/utils/custom_path.dart';
@@ -22,9 +24,10 @@ class _LoginState extends State<Login> {
       "nim": tecNIM.text,
       "pass": tecPassword.text,
     });
-
-    print(response.statusCode);
-    messageStatus(context, response.statusCode);
+    if (response.statusCode == 200) {
+      List data = json.decode(response.body);
+      messageStatus(context, response.statusCode);
+    }
   }
 
   @override
@@ -44,18 +47,15 @@ class _LoginState extends State<Login> {
                   Text(
                     "Login",
                     style: GoogleFonts.mcLaren(
-                        color: colPrimary,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold),
+                      color: colPrimary,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(
                     height: 20,
                   ),
-                  FormInput(
-                      tecNIM: tecNIM,
-                      focNIM: focNIM,
-                      focPassword: focPassword,
-                      tecPassword: tecPassword),
+                  _buildFormInput(),
                   SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -189,7 +189,7 @@ class _LoginState extends State<Login> {
             border: Border.all(color: colPrimary, width: 2),
           ),
           child: Text(
-            "Register",
+            "Login",
             style: GoogleFonts.mcLaren(
                 color: colPrimary, fontWeight: FontWeight.bold),
           ),
