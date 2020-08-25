@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:form_login_register_mahasiswa/models/mahasiswa.dart';
 import 'package:form_login_register_mahasiswa/utils/assets.dart';
 import 'package:form_login_register_mahasiswa/utils/custom_path.dart';
 import 'package:form_login_register_mahasiswa/views/home.dart';
@@ -8,6 +9,9 @@ import 'package:form_login_register_mahasiswa/views/register.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:form_login_register_mahasiswa/utils/link.dart' as link;
+import 'package:shared_preferences/shared_preferences.dart';
+
+enum StatusLogin { signIn, notSignIn }
 
 class Login extends StatefulWidget {
   @override
@@ -20,23 +24,69 @@ class _LoginState extends State<Login> {
   var focNIM = FocusNode();
   var focPassword = FocusNode();
 
+  Mahasiswa _mahasiswa;
+
+  StatusLogin _statusLogin = StatusLogin.notSignIn;
+  final _keyForm = GlobalKey<FormState>();
+
   void _login() async {
-    final response = await http.post(link.Link.main + "login.php", body: {
+    final result = await http.post(link.Link.main + "login.php", body: {
       "nim": tecNIM.text,
       "pass": tecPassword.text,
     });
-    if (response.statusCode == 200) {
-      List data = json.decode(response.body);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Home(
-            data: data[0],
-          ),
-        ),
+    final response = await json.decode(result.body);
+    int value = response['value'];
+    String pesan = response['message'];
+    print(pesan);
+
+    if (value == 1) {
+      final data = await json.decode(response['data']);
+      _mahasiswa = Mahasiswa(
+        data['id_mahasiswa'],
+        data['nim_mahasiswa'],
+        data['password'],
+        data['nama_lengkap'],
+        data['jenis_kelamin'],
+        data['jurusan'],
+        data['alamat'],
+        data['tgl_daftar'],
       );
+      setState(() {
+        _statusLogin = StatusLogin.signIn;
+      });
     }
-    // messageStatus(context, response.statusCode);
+  }
+
+  void _cekForm() {
+    final form = _keyForm.currentState;
+    if (form.validate()) {
+      form.save();
+      _login();
+    }
+  }
+
+  void _tapRegister() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Register(),
+      ),
+    );
+  }
+
+  void _saveDataPref(int value, Mahasiswa mahasiswa) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      sharedPreferences.setInt("value", value);
+      sharedPreferences.setInt("id", mahasiswa.getId());
+      sharedPreferences.setString("nim", mahasiswa.getNim());
+      sharedPreferences.setString("password", mahasiswa.getPass());
+      sharedPreferences.setString("nama", mahasiswa.getNama());
+      sharedPreferences.setString("jk", mahasiswa.getJK());
+      sharedPreferences.setString("jurusan", mahasiswa.getJurusan());
+      sharedPreferences.setString("alamat", mahasiswa.getAlamat());
+      sharedPreferences.setString("tgl_daftar", mahasiswa.getTglDaftar());
+    });
   }
 
   @override
@@ -90,38 +140,31 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void _tapRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Register(),
-      ),
-    );
-  }
-
   Widget _buildFormInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTextField(
-          hint: "NIM",
-          controller: tecNIM,
-          focus: focNIM,
-          nextFocus: focPassword,
-          inputType: TextInputType.number,
-          icon: Icons.person,
-        ),
-        _buildTextField(
-          hint: "Password",
-          controller: tecPassword,
-          focus: focPassword,
-          icon: Icons.lock,
-          obscure: true,
-        ),
-        SizedBox(height: 20),
-        _buildButton(),
-        SizedBox(height: 20),
-      ],
+    return Form(
+      key: _keyForm,
+      child: Column(
+        children: [
+          _buildTextField(
+            hint: "NIM",
+            controller: tecNIM,
+            focus: focNIM,
+            nextFocus: focPassword,
+            inputType: TextInputType.number,
+            icon: Icons.person,
+          ),
+          _buildTextField(
+            hint: "Password",
+            controller: tecPassword,
+            focus: focPassword,
+            icon: Icons.lock,
+            obscure: true,
+          ),
+          SizedBox(height: 20),
+          _buildButton(),
+          SizedBox(height: 20),
+        ],
+      ),
     );
   }
 
@@ -161,7 +204,7 @@ class _LoginState extends State<Login> {
         ),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         focusNode: focus,
         style: textLabel,
@@ -176,12 +219,18 @@ class _LoginState extends State<Login> {
           border: InputBorder.none,
           hintText: hint,
         ),
-        onSubmitted: (v) {
+        onEditingComplete: () {
           if (nextFocus == null) {
             focus.unfocus();
           } else {
             FocusScope.of(context).requestFocus(nextFocus);
           }
+        },
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please Input $hint';
+          }
+          return null;
         },
       ),
     );
@@ -190,7 +239,9 @@ class _LoginState extends State<Login> {
   Center _buildButton() {
     return Center(
       child: InkWell(
-        onTap: () => _login(),
+        onTap: () {
+          _cekForm();
+        },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           decoration: BoxDecoration(
@@ -204,91 +255,6 @@ class _LoginState extends State<Login> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class FormInput extends StatelessWidget {
-  const FormInput({
-    Key key,
-    @required this.tecNIM,
-    @required this.focNIM,
-    @required this.focPassword,
-    @required this.tecPassword,
-  }) : super(key: key);
-
-  final TextEditingController tecNIM;
-  final FocusNode focNIM;
-  final FocusNode focPassword;
-  final TextEditingController tecPassword;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: colPrimary,
-              width: 3,
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: TextField(
-            controller: tecNIM,
-            focusNode: focNIM,
-            style: textPrimary,
-            textInputAction: TextInputAction.next,
-            onSubmitted: (v) {
-              FocusScope.of(context).requestFocus(focPassword);
-            },
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.person),
-              border: InputBorder.none,
-              hintText: "NIM",
-            ),
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          decoration: BoxDecoration(
-            border: Border.all(color: colPrimary, width: 3),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: TextField(
-            controller: tecPassword,
-            focusNode: focPassword,
-            style: textPrimary,
-            textInputAction: TextInputAction.done,
-            obscureText: true,
-            onSubmitted: (v) {
-              focPassword.unfocus();
-            },
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "Password",
-                prefixIcon: Icon(Icons.lock)),
-          ),
-        ),
-        SizedBox(height: 20),
-        InkWell(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colPrimary, width: 2),
-            ),
-            child: Text(
-              "Login",
-              style: GoogleFonts.mcLaren(
-                  color: colPrimary, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
