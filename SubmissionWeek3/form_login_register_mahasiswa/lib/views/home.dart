@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:form_login_register_mahasiswa/models/mahasiswa.dart';
 import 'package:form_login_register_mahasiswa/utils/assets/color.dart';
 import 'package:form_login_register_mahasiswa/views/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
-  final data;
+  final Mahasiswa data;
 
   const Home({Key key, this.data}) : super(key: key);
   @override
@@ -13,13 +15,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var asset = "assets/images/";
 
-  void _logout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Login(),
-      ),
-    );
+  void _logout() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    setState(() {
+      sharedPreferences.setInt("value", null);
+      sharedPreferences.commit();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Login(),
+        ),
+      );
+    });
   }
 
   @override
@@ -40,7 +48,7 @@ class _HomeState extends State<Home> {
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: Text(
-                widget.data['nama_lengkap'],
+                widget.data.getNama(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16.0,
@@ -81,22 +89,22 @@ class _HomeState extends State<Home> {
             child: Column(
               children: [
                 ListTile(
-                  title: Text(widget.data['nim_mahasiswa']),
+                  title: Text(widget.data.getNim()),
                   subtitle: Text("NIM Mahasiswa"),
                   leading: Icon(Icons.person),
                 ),
                 ListTile(
-                  title: Text(widget.data['jenis_kelamin']),
+                  title: Text(widget.data.getJK()),
                   subtitle: Text("Jenis Kelamin"),
                   leading: Icon(Icons.wc),
                 ),
                 ListTile(
-                  title: Text(widget.data['jurusan']),
+                  title: Text(widget.data.getJurusan()),
                   subtitle: Text("Jurusan"),
                   leading: Icon(Icons.school),
                 ),
                 ListTile(
-                  title: Text(widget.data['alamat']),
+                  title: Text(widget.data.getAlamat()),
                   subtitle: Text("Alamat"),
                   leading: Icon(Icons.home),
                 ),

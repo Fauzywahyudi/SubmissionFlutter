@@ -23,7 +23,7 @@ class _LoginState extends State<Login> {
   var tecPassword = TextEditingController();
   var focNIM = FocusNode();
   var focPassword = FocusNode();
-
+  bool isLoading = true;
   Mahasiswa _mahasiswa;
 
   StatusLogin _statusLogin = StatusLogin.notSignIn;
@@ -53,7 +53,20 @@ class _LoginState extends State<Login> {
       );
       setState(() {
         _statusLogin = StatusLogin.signIn;
+        _saveDataPref(value, _mahasiswa);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Home(
+              data: _mahasiswa,
+            ),
+          ),
+        );
       });
+    } else if (value == 2) {
+      print(pesan);
+    } else {
+      print(pesan);
     }
   }
 
@@ -89,8 +102,64 @@ class _LoginState extends State<Login> {
     });
   }
 
+  void _getDataPref() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      Mahasiswa mahasiswa;
+      int nValue = sharedPreferences.getInt("value");
+      if (nValue == 1) {
+        int id = sharedPreferences.getInt("id");
+        String nim = sharedPreferences.getString("nim");
+        String pass = sharedPreferences.getString("password");
+        String nama = sharedPreferences.getString("nama");
+        String jk = sharedPreferences.getString("jk");
+        String jurusan = sharedPreferences.getString("jurusan");
+        String alamat = sharedPreferences.getString("alamat");
+        String tglDaftar = sharedPreferences.getString("tgl_daftar");
+
+        mahasiswa =
+            Mahasiswa(id, nim, pass, nama, jk, jurusan, alamat, tglDaftar);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Home(
+              data: mahasiswa,
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    _getDataPref();
+    setState(() {
+      isLoading = false;
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    switch (isLoading) {
+      case true:
+        return Scaffold(
+          body: Container(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        );
+        break;
+      case false:
+        return _buildScaffold(context);
+        break;
+      default:
+    }
+  }
+
+  Scaffold _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: colPrimary,
       body: SafeArea(
