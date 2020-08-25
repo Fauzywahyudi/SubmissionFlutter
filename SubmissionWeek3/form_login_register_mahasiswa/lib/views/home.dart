@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:form_login_register_mahasiswa/utils/assets/color.dart';
+import 'package:form_login_register_mahasiswa/views/login.dart';
 
 class Home extends StatefulWidget {
   final data;
@@ -12,13 +13,20 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var asset = "assets/images/";
 
-  void _logout() {}
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Login(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () => _logout(),
         icon: Icon(Icons.exit_to_app),
         tooltip: "Logout",
         label: Text("Logout"),
