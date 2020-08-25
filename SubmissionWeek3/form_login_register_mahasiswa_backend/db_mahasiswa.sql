@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 25 Agu 2020 pada 06.37
+-- Waktu pembuatan: 25 Agu 2020 pada 10.02
 -- Versi server: 10.4.13-MariaDB
 -- Versi PHP: 7.4.8
 
@@ -30,19 +30,13 @@ SET time_zone = "+00:00";
 CREATE TABLE `mahasiswa` (
   `id_mahasiswa` int(11) NOT NULL,
   `nim_mahasiswa` varchar(15) NOT NULL,
-  `password` varchar(25) NOT NULL,
+  `password` text NOT NULL,
   `nama_lengkap` varchar(50) NOT NULL,
   `jenis_kelamin` varchar(10) NOT NULL,
   `jurusan` varchar(50) NOT NULL,
-  `alamat` text NOT NULL
+  `alamat` text NOT NULL,
+  `tgl_daftar` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data untuk tabel `mahasiswa`
---
-
-INSERT INTO `mahasiswa` (`id_mahasiswa`, `nim_mahasiswa`, `password`, `nama_lengkap`, `jenis_kelamin`, `jurusan`, `alamat`) VALUES
-(1, '16101152630059', 'fauzy', 'Fauzy Wahyudi', 'Laki-laki', 'Teknik Informatika', 'Solok');
 
 --
 -- Indexes for dumped tables
@@ -62,7 +56,7 @@ ALTER TABLE `mahasiswa`
 -- AUTO_INCREMENT untuk tabel `mahasiswa`
 --
 ALTER TABLE `mahasiswa`
-  MODIFY `id_mahasiswa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_mahasiswa` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

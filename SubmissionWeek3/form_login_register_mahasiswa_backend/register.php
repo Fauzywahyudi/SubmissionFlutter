@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $response['message'] = "NIM telah terdaftar";
         echo json_encode($response);
     } else {
-        $sql = $kon->query("INSERT INTO `mahasiswa`(`id_mahasiswa`, `nim_mahasiswa`, `password`, `nama_lengkap`, `jenis_kelamin`, `jurusan`, `alamat`) VALUES (NULL,'$nim','$pass','$nama','$jk','$jurusan','$alamat')");
+        $sql = $kon->query("INSERT INTO `mahasiswa`(`id_mahasiswa`, `nim_mahasiswa`, `password`, `nama_lengkap`, `jenis_kelamin`, `jurusan`, `alamat`, `tgl_daftar`) VALUES (NULL,'$nim','$pass','$nama','$jk','$jurusan','$alamat',NOW())");
 
         if ($sql) {
             $response['value'] = 1;

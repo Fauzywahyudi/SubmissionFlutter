@@ -13,8 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($result)) {
         $response['value'] = 1;
         $response['message'] = "Login berhasil";
-        $response['nim'] = $result['nim_mahasiswa'];
-        $response['nama'] = $result['nama_lengkap'];
+        $response['data'] = json_encode($result);
         echo json_encode($response);
     } else {
         $response['value'] = 0;
