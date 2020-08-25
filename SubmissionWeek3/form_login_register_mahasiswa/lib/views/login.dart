@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:form_login_register_mahasiswa/utils/assets.dart';
 import 'package:form_login_register_mahasiswa/utils/custom_path.dart';
+import 'package:form_login_register_mahasiswa/views/home.dart';
 import 'package:form_login_register_mahasiswa/views/register.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -26,8 +27,16 @@ class _LoginState extends State<Login> {
     });
     if (response.statusCode == 200) {
       List data = json.decode(response.body);
-      messageStatus(context, response.statusCode);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(
+            data: data[0],
+          ),
+        ),
+      );
     }
+    // messageStatus(context, response.statusCode);
   }
 
   @override
