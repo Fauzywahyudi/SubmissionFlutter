@@ -62,18 +62,9 @@ class _RegisterState extends State<Register> {
       "jk": jenisKelamin,
       "jurusan": _currentJurusan,
     });
+
     print(response.statusCode);
-    if (response.statusCode == 200) {
-      BotToast.showSimpleNotification(
-        title: "Sukses",
-        hideCloseButton: true,
-      );
-      Navigator.pop(context);
-    } else {
-      BotToast.showSimpleNotification(
-        title: "Gagal",
-      );
-    }
+    messageStatus(context, response.statusCode);
   }
 
   @override
@@ -136,6 +127,7 @@ class _RegisterState extends State<Register> {
           controller: tecNama,
           focus: focNama,
           icon: Icons.person,
+          textCapital: TextCapitalization.words,
         ),
         _buildRadio(),
         _buildDropDown(),
@@ -151,6 +143,68 @@ class _RegisterState extends State<Register> {
         _buildButton(),
         SizedBox(height: 20),
       ],
+    );
+  }
+
+  Widget _buildTextField({
+    String hint,
+    TextEditingController controller,
+    FocusNode focus,
+    FocusNode nextFocus,
+    bool obscure,
+    int minLines,
+    TextInputType inputType,
+    TextInputAction inputAction,
+    IconData icon,
+    TextCapitalization textCapital,
+  }) {
+    bool _obscure = obscure;
+    TextInputType _inputType = inputType;
+    TextInputAction _inputAction = inputAction;
+    IconData _icon = icon;
+    int _minLines = minLines;
+    TextCapitalization _textCapital = textCapital;
+
+    if (obscure == null) _obscure = false;
+    if (inputType == null) _inputType = TextInputType.text;
+    if (inputAction == null) _inputAction = TextInputAction.next;
+    if (icon == null) _icon = Icons.text_fields;
+    if (minLines == null) _minLines = 1;
+    if (textCapital == null) _textCapital = TextCapitalization.none;
+
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: colPrimary,
+          width: 3,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: TextField(
+        controller: controller,
+        focusNode: focus,
+        style: textLabel,
+        obscureText: _obscure,
+        keyboardType: _inputType,
+        textInputAction: _inputAction,
+        minLines: _minLines,
+        maxLines: _minLines,
+        textCapitalization: _textCapital,
+        decoration: InputDecoration(
+          prefixIcon: Icon(_icon),
+          border: InputBorder.none,
+          hintText: hint,
+        ),
+        onSubmitted: (v) {
+          if (nextFocus == null) {
+            focus.unfocus();
+          } else {
+            FocusScope.of(context).requestFocus(nextFocus);
+          }
+        },
+      ),
     );
   }
 
@@ -276,63 +330,6 @@ class _RegisterState extends State<Register> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-      {String hint,
-      TextEditingController controller,
-      FocusNode focus,
-      FocusNode nextFocus,
-      bool obscure,
-      int minLines,
-      TextInputType inputType,
-      TextInputAction inputAction,
-      IconData icon}) {
-    bool _obscure = obscure;
-    TextInputType _inputType = inputType;
-    TextInputAction _inputAction = inputAction;
-    IconData _icon = icon;
-    int _minLines = minLines;
-
-    if (obscure == null) _obscure = false;
-    if (inputType == null) _inputType = TextInputType.text;
-    if (inputAction == null) _inputAction = TextInputAction.next;
-    if (icon == null) _icon = Icons.text_fields;
-    if (minLines == null) _minLines = 1;
-
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: EdgeInsets.symmetric(horizontal: 5),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: colPrimary,
-          width: 3,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: TextField(
-        controller: controller,
-        focusNode: focus,
-        style: textLabel,
-        obscureText: _obscure,
-        keyboardType: _inputType,
-        textInputAction: _inputAction,
-        minLines: _minLines,
-        maxLines: _minLines,
-        decoration: InputDecoration(
-          prefixIcon: Icon(_icon),
-          border: InputBorder.none,
-          hintText: hint,
-        ),
-        onSubmitted: (v) {
-          if (nextFocus == null) {
-            focus.unfocus();
-          } else {
-            FocusScope.of(context).requestFocus(nextFocus);
-          }
-        },
       ),
     );
   }
