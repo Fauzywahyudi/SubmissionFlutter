@@ -44,6 +44,8 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _buildAppBar(),
+      drawer: _buildDrawer(),
       body: Container(
         child: Stack(
           children: [
@@ -56,11 +58,68 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Drawer _buildDrawer() {
+    return Drawer(
+      child: Container(
+        color: colPrimary,
+        child: ListView(
+          children: [
+            DrawerHeader(
+              padding: EdgeInsets.all(0),
+              child: Container(
+                color: colPrimary,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(2),
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(40),
+                        color: colSecondary,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Image.asset(
+                          asset + "logo.png",
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "Kamus Informatika",
+                      style: GoogleFonts.mcLaren(
+                          color: colSecondary, fontSize: 20),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              color: colSecondary,
+              height: MediaQuery.of(context).size.height - 180,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text(
+        "Kamus Informatika",
+        style: GoogleFonts.mcLaren(),
+      ),
+      elevation: 0.0,
+    );
+  }
+
   Widget _buildSearchInput() {
     return Container(
       child: Column(
         children: [
-          SizedBox(height: 110),
+          SizedBox(height: 30),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Material(
@@ -97,7 +156,7 @@ class _HomeState extends State<Home> {
 
   Widget _buildHeader() {
     return Container(
-      height: 140,
+      height: 60,
       width: double.infinity,
       decoration: BoxDecoration(
         color: colPrimary,
@@ -106,24 +165,12 @@ class _HomeState extends State<Home> {
           bottomLeft: Radius.circular(30),
         ),
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Kamus Informatika",
-              style: textSecondary.copyWith(fontSize: 24),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   Widget _buildBody() {
     return Container(
-      padding: EdgeInsets.only(top: 145),
+      padding: EdgeInsets.only(top: 60),
       child: FutureBuilder<List>(
         future: _getData(_currentSearch),
         builder: (context, snapshot) {
@@ -158,6 +205,7 @@ class _HomeState extends State<Home> {
       onRefresh: handleRefresh,
       child: snapshot.data.isNotEmpty
           ? ListView.builder(
+              padding: EdgeInsets.only(top: 20),
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 return _buildItemList(snapshot, index);
@@ -185,9 +233,15 @@ class _HomeState extends State<Home> {
                   style: GoogleFonts.mcLaren(fontSize: 17, color: colPrimary),
                 ),
               ),
+              Divider(
+                indent: 15,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                child: Text(snapshot.data[index]['penjelasan']),
+                child: Text(
+                  snapshot.data[index]['penjelasan'],
+                  textAlign: TextAlign.justify,
+                ),
               ),
             ],
           ),
