@@ -1,6 +1,6 @@
 class Link {
   static final String server =
-      "http://192.168.42.224/MentoringFlutter/SubmissionFlutter/SubmissionWeek3/form_login_register_mahasiswa_backend/";
+      "http://10.0.2.2/MentoringFlutter/SubmissionFlutter/SubmissionWeek4/aplikasi_notes_backend/";
 
   static final String asset = "assets/images/";
 }
