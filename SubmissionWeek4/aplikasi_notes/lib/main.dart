@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Notes App',
+      debugShowCheckedModeBanner: false,
       navigatorObservers: [
         BotToastNavigatorObserver()
       ], //Register route observer

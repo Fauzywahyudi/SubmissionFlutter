@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:aplikasi_notes/views/add_notes.dart';
 import 'package:flutter/material.dart';
 import 'package:aplikasi_notes/models/user.dart';
 import 'package:aplikasi_notes/utils/assets.dart';
 import 'package:aplikasi_notes/utils/custom_path.dart';
-import 'package:aplikasi_notes/views/home.dart';
 import 'package:aplikasi_notes/views/register.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -19,9 +20,9 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  var tecNIM = TextEditingController();
+  var tecusername = TextEditingController();
   var tecPassword = TextEditingController();
-  var focNIM = FocusNode();
+  var focusername = FocusNode();
   var focPassword = FocusNode();
   bool isLoading = true;
   User _user;
@@ -31,7 +32,7 @@ class _LoginState extends State<Login> {
 
   void _login() async {
     final result = await http.post(link.Link.server + "login.php", body: {
-      "username": tecNIM.text,
+      "username": tecusername.text,
       "password": tecPassword.text,
     });
     final response = await json.decode(result.body);
@@ -46,20 +47,21 @@ class _LoginState extends State<Login> {
       setState(() {
         _statusLogin = StatusLogin.signIn;
         _saveDataPref(value, _user);
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => Home(
-        //       user: _user,
-        //     ),
-        //   ),
-        // );
       });
     } else if (value == 2) {
-      print(pesan);
+      messageInfo(context, pesan);
     } else {
-      print(pesan);
+      messageInfo(context, pesan + "\nUsername atau Password Salah!");
     }
+  }
+
+  void _logout() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    setState(() {
+      sharedPreferences.setInt("value", null);
+      _statusLogin = StatusLogin.notSignIn;
+    });
   }
 
   void _cekForm() {
@@ -94,7 +96,6 @@ class _LoginState extends State<Login> {
   void _getDataPref() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      User user;
       int nValue = sharedPreferences.getInt("value");
       if (nValue == 1) {
         int id = sharedPreferences.getInt("id");
@@ -103,20 +104,21 @@ class _LoginState extends State<Login> {
         String jk = sharedPreferences.getString("jk");
         String tglDaftar = sharedPreferences.getString("tgl_daftar");
 
-        user = User(id, username, nama, jk, tglDaftar);
+        _user = User(id, username, nama, jk, tglDaftar);
         setState(() {
           _statusLogin = StatusLogin.signIn;
         });
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => Home(
-        //       user: user,
-        //     ),
-        //   ),
-        // );
       }
     });
+  }
+
+  Future<Null> handleRefresh() async {
+    Completer<Null> completer = new Completer<Null>();
+    new Future.delayed(new Duration(milliseconds: 500)).then((_) {
+      completer.complete();
+      setState(() {});
+    });
+    return completer.future;
   }
 
   @override
@@ -143,10 +145,45 @@ class _LoginState extends State<Login> {
 
   Widget _buildHome(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Home"),
+      backgroundColor: colPrimary,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => AddNotes())),
       ),
-      body: Container(),
+      body: SafeArea(
+        child: Container(
+          color: colSecondary,
+          child: RefreshIndicator(
+            onRefresh: handleRefresh,
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  pinned: true,
+                  floating: true,
+                  snap: true,
+                  actions: [
+                    IconButton(
+                      icon: Icon(Icons.exit_to_app),
+                      onPressed: () => _logout(),
+                    ),
+                  ],
+                  expandedHeight: 150,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: Text("Notes App"),
+                    centerTitle: true,
+                    background: Container(
+                      decoration: BoxDecoration(color: colPrimary),
+                    ),
+                  ),
+                ),
+                _buildSliverGrid(),
+                SliverPadding(padding: EdgeInsets.only(top: 100))
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -205,14 +242,16 @@ class _LoginState extends State<Login> {
       key: _keyForm,
       child: Column(
         children: [
-          _buildTextField(
+          buildTextField(
+            context: context,
             hint: "Username",
-            controller: tecNIM,
-            focus: focNIM,
+            controller: tecusername,
+            focus: focusername,
             nextFocus: focPassword,
             icon: Icons.person,
           ),
-          _buildTextField(
+          buildTextField(
+            context: context,
             hint: "Password",
             controller: tecPassword,
             focus: focPassword,
@@ -223,60 +262,6 @@ class _LoginState extends State<Login> {
           _buildButton(),
           SizedBox(height: 20),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    String hint,
-    TextEditingController controller,
-    FocusNode focus,
-    FocusNode nextFocus,
-    bool obscure = false,
-    int minLines = 1,
-    TextInputType inputType = TextInputType.text,
-    TextInputAction inputAction = TextInputAction.next,
-    IconData icon = Icons.text_fields,
-    TextCapitalization textCapital = TextCapitalization.none,
-  }) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: EdgeInsets.symmetric(horizontal: 5),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: colPrimary,
-          width: 3,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: TextFormField(
-        controller: controller,
-        focusNode: focus,
-        style: textLabel,
-        obscureText: obscure,
-        keyboardType: inputType,
-        textInputAction: inputAction,
-        minLines: minLines,
-        maxLines: minLines,
-        textCapitalization: textCapital,
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon),
-          border: InputBorder.none,
-          hintText: hint,
-        ),
-        onEditingComplete: () {
-          if (nextFocus == null) {
-            focus.unfocus();
-          } else {
-            FocusScope.of(context).requestFocus(nextFocus);
-          }
-        },
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please Input $hint';
-          }
-          return null;
-        },
       ),
     );
   }
@@ -300,6 +285,29 @@ class _LoginState extends State<Login> {
           ),
         ),
       ),
+    );
+  }
+
+  SliverPadding _buildSliverGrid() {
+    return SliverPadding(
+      padding: EdgeInsets.all(10),
+      sliver: SliverGrid(
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200.0,
+          mainAxisSpacing: 10.0,
+          crossAxisSpacing: 10.0,
+          childAspectRatio: 0.9,
+        ),
+        delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+          return _buildItemGrid();
+        }, childCount: 10),
+      ),
+    );
+  }
+
+  Card _buildItemGrid() {
+    return Card(
+      child: Center(),
     );
   }
 }

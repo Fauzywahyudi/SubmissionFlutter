@@ -50,8 +50,6 @@ class _RegisterState extends State<Register> {
     } else {
       messageDanger(context, pesan);
     }
-
-    // messageStatus(context, result.statusCode);
   }
 
   void _cekForm() {
@@ -103,7 +101,8 @@ class _RegisterState extends State<Register> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextField(
+          buildTextField(
+            context: context,
             hint: "Username",
             controller: tecUsername,
             focus: focNIM,
@@ -111,7 +110,8 @@ class _RegisterState extends State<Register> {
             inputType: TextInputType.number,
             icon: Icons.person,
           ),
-          _buildTextField(
+          buildTextField(
+            context: context,
             hint: "Password",
             controller: tecPassword,
             focus: focPassword,
@@ -119,7 +119,8 @@ class _RegisterState extends State<Register> {
             icon: Icons.lock,
             obscure: true,
           ),
-          _buildTextField(
+          buildTextField(
+            context: context,
             hint: "Nama Lengkap",
             controller: tecNama,
             focus: focNama,
@@ -131,60 +132,6 @@ class _RegisterState extends State<Register> {
           _buildButton(),
           SizedBox(height: 20),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    String hint,
-    TextEditingController controller,
-    FocusNode focus,
-    FocusNode nextFocus,
-    bool obscure = false,
-    int minLines = 1,
-    TextInputType inputType = TextInputType.text,
-    TextInputAction inputAction = TextInputAction.next,
-    IconData icon = Icons.text_fields,
-    TextCapitalization textCapital = TextCapitalization.none,
-  }) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: EdgeInsets.symmetric(horizontal: 5),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: colPrimary,
-          width: 3,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: TextFormField(
-        controller: controller,
-        focusNode: focus,
-        style: textLabel,
-        obscureText: obscure,
-        keyboardType: inputType,
-        textInputAction: inputAction,
-        minLines: minLines,
-        maxLines: minLines,
-        textCapitalization: textCapital,
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon),
-          border: InputBorder.none,
-          hintText: hint,
-        ),
-        onEditingComplete: () {
-          if (nextFocus == null) {
-            focus.unfocus();
-          } else {
-            FocusScope.of(context).requestFocus(nextFocus);
-          }
-        },
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please Input $hint';
-          }
-          return null;
-        },
       ),
     );
   }
