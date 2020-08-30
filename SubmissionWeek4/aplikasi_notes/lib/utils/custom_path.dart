@@ -18,9 +18,10 @@ class CustomClip extends StatelessWidget {
           ),
         ),
         Container(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.all(20),
+          width: MediaQuery.of(context).size.width,
           height: 175,
-          child: Hero(tag: "logo", child: SvgPicture.asset(asset + "logo.svg")),
+          child: Hero(tag: "logo", child: Image.asset(asset + "logo.png")),
         ),
       ],
     );

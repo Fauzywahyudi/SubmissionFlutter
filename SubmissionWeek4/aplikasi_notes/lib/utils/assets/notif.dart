@@ -23,12 +23,32 @@ void messageStatus(BuildContext context, int responseCode) {
   }
 }
 
-void message(BuildContext context, String notif, IconData icon, Color color) {
+void messageInfo(BuildContext context, String notif) {
   BotToast.showSimpleNotification(
     title: notif,
     closeIcon: Icon(
-      icon,
-      color: color,
+      Icons.info,
+      color: colInfo,
+    ),
+  );
+}
+
+void messageSuccess(BuildContext context, String notif) {
+  BotToast.showSimpleNotification(
+    title: notif,
+    closeIcon: Icon(
+      Icons.check,
+      color: colSuccess,
+    ),
+  );
+}
+
+void messageDanger(BuildContext context, String notif) {
+  BotToast.showSimpleNotification(
+    title: notif,
+    closeIcon: Icon(
+      Icons.warning,
+      color: colDanger,
     ),
   );
 }

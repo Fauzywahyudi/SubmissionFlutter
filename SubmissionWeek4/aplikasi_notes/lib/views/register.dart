@@ -1,148 +1,69 @@
 import 'dart:convert';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:aplikasi_notes/models/user.dart';
 import 'package:aplikasi_notes/utils/assets.dart';
 import 'package:aplikasi_notes/utils/custom_path.dart';
-import 'package:aplikasi_notes/views/home.dart';
-import 'package:aplikasi_notes/views/register.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:aplikasi_notes/utils/link.dart' as link;
-import 'package:shared_preferences/shared_preferences.dart';
 
-enum StatusLogin { signIn, notSignIn }
-
-class Login extends StatefulWidget {
+class Register extends StatefulWidget {
   @override
-  _LoginState createState() => _LoginState();
+  _RegisterState createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
-  var tecNIM = TextEditingController();
+class _RegisterState extends State<Register> {
+  var tecUsername = TextEditingController();
   var tecPassword = TextEditingController();
+  var tecNama = TextEditingController();
+
   var focNIM = FocusNode();
   var focPassword = FocusNode();
-  bool isLoading = true;
-  User _user;
+  var focNama = FocusNode();
 
-  StatusLogin _statusLogin = StatusLogin.notSignIn;
   final _keyForm = GlobalKey<FormState>();
 
-  void _login() async {
-    final result = await http.post(link.Link.server + "login.php", body: {
-      "nim": tecNIM.text,
-      "pass": tecPassword.text,
+  String jenisKelamin = "";
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _register() async {
+    final result = await http.post(link.Link.server + "register.php", body: {
+      "username": tecUsername.text,
+      "password": tecPassword.text,
+      "nama": tecNama.text,
+      "jk": jenisKelamin,
     });
     final response = await json.decode(result.body);
     int value = response['value'];
     String pesan = response['message'];
     print(pesan);
-
     if (value == 1) {
-      final data = await json.decode(response['data']);
-      _user = User(data['id_user'], data['username'], data['nama_lengkap'],
-          data['jenis_kelamin'], data['tgl_daftar']);
-      setState(() {
-        _statusLogin = StatusLogin.signIn;
-        _saveDataPref(value, _user);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Home(
-              user: _user,
-            ),
-          ),
-        );
-      });
+      messageSuccess(context, pesan);
+      Navigator.pop(context);
     } else if (value == 2) {
-      print(pesan);
+      messageInfo(context, pesan);
     } else {
-      print(pesan);
+      messageDanger(context, pesan);
     }
+
+    // messageStatus(context, result.statusCode);
   }
 
   void _cekForm() {
     final form = _keyForm.currentState;
-    if (form.validate()) {
+    if (form.validate() && jenisKelamin.isNotEmpty) {
       form.save();
-      _login();
+      _register();
     }
-  }
-
-  void _tapRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Register(),
-      ),
-    );
-  }
-
-  void _saveDataPref(int value, User user) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      sharedPreferences.setInt("value", value);
-      sharedPreferences.setInt("id", user.getId());
-      sharedPreferences.setString("username", user.getUsername());
-      sharedPreferences.setString("nama", user.getNama());
-      sharedPreferences.setString("jk", user.getJk());
-      sharedPreferences.setString("tgl_daftar", user.getTglDaftar());
-    });
-  }
-
-  void _getDataPref() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      User user;
-      int nValue = sharedPreferences.getInt("value");
-      if (nValue == 1) {
-        int id = sharedPreferences.getInt("id");
-        String username = sharedPreferences.getString("username");
-        String nama = sharedPreferences.getString("nama");
-        String jk = sharedPreferences.getString("jk");
-        String tglDaftar = sharedPreferences.getString("tgl_daftar");
-
-        user = User(id, username, nama, jk, tglDaftar);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Home(
-              user: user,
-            ),
-          ),
-        );
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    _getDataPref();
-    setState(() {
-      isLoading = false;
-    });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    switch (_statusLogin) {
-      case StatusLogin.notSignIn:
-        return _buildLogin(context);
-        break;
-      case StatusLogin.signIn:
-        return _buildHome(context);
-        break;
-      default:
-    }
-  }
-
-  Widget _buildHome(BuildContext context) {
-    return Scaffold();
-  }
-
-  Widget _buildLogin(BuildContext context) {
     return Scaffold(
       backgroundColor: colPrimary,
       body: SafeArea(
@@ -156,7 +77,7 @@ class _LoginState extends State<Login> {
                 children: [
                   CustomClip(),
                   Text(
-                    "Login",
+                    "Register",
                     style: GoogleFonts.mcLaren(
                       color: colPrimary,
                       fontSize: 30,
@@ -167,22 +88,6 @@ class _LoginState extends State<Login> {
                     height: 20,
                   ),
                   _buildFormInput(),
-                  SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("No have account? "),
-                      InkWell(
-                        onTap: () => _tapRegister(),
-                        child: Text(
-                          "create here!",
-                          style: GoogleFonts.mcLaren(
-                            color: colPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
                 ],
               ),
             ),
@@ -196,21 +101,32 @@ class _LoginState extends State<Login> {
     return Form(
       key: _keyForm,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTextField(
             hint: "Username",
-            controller: tecNIM,
+            controller: tecUsername,
             focus: focNIM,
             nextFocus: focPassword,
+            inputType: TextInputType.number,
             icon: Icons.person,
           ),
           _buildTextField(
             hint: "Password",
             controller: tecPassword,
             focus: focPassword,
+            nextFocus: focNama,
             icon: Icons.lock,
             obscure: true,
           ),
+          _buildTextField(
+            hint: "Nama Lengkap",
+            controller: tecNama,
+            focus: focNama,
+            icon: Icons.person,
+            textCapital: TextCapitalization.words,
+          ),
+          _buildRadio(),
           SizedBox(height: 20),
           _buildButton(),
           SizedBox(height: 20),
@@ -276,9 +192,7 @@ class _LoginState extends State<Login> {
   Center _buildButton() {
     return Center(
       child: InkWell(
-        onTap: () {
-          _cekForm();
-        },
+        onTap: () => _cekForm(),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           decoration: BoxDecoration(
@@ -286,11 +200,110 @@ class _LoginState extends State<Login> {
             border: Border.all(color: colPrimary, width: 2),
           ),
           child: Text(
-            "Login",
+            "Register",
             style: GoogleFonts.mcLaren(
                 color: colPrimary, fontWeight: FontWeight.bold),
           ),
         ),
+      ),
+    );
+  }
+
+  Container _buildDropDown() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.only(
+        left: 17,
+        right: 15,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colPrimary, width: 3),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.school,
+            color: colLabel,
+          ),
+          SizedBox(width: 10),
+          Text(
+            "Jurusan",
+            style: textLabel,
+          ),
+          Expanded(child: Container()),
+        ],
+      ),
+    );
+  }
+
+  Container _buildRadio() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colPrimary, width: 3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 17,
+              top: 10,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.wc,
+                  color: colLabel,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  "Jenis Kelamin",
+                  style: textLabel,
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Radio(
+                  value: "Laki-laki",
+                  groupValue: jenisKelamin,
+                  onChanged: (v) {
+                    setState(() {
+                      jenisKelamin = v;
+                    });
+                  }),
+              InkWell(
+                child: Text("Laki-laki"),
+                onTap: () {
+                  setState(() {
+                    jenisKelamin = "Laki-laki";
+                  });
+                },
+              ),
+              SizedBox(width: 20),
+              Radio(
+                  value: "Perempuan",
+                  groupValue: jenisKelamin,
+                  onChanged: (v) {
+                    setState(() {
+                      jenisKelamin = v;
+                    });
+                  }),
+              InkWell(
+                child: Text("Perempuan"),
+                onTap: () {
+                  setState(() {
+                    jenisKelamin = "Perempuan";
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

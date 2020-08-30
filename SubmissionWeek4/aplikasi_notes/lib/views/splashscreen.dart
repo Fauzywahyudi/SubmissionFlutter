@@ -1,9 +1,8 @@
 import 'dart:async';
-
 import 'package:aplikasi_notes/utils/assets.dart';
+import 'package:aplikasi_notes/views/login.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:aplikasi_notes/utils/link.dart';
+import 'package:aplikasi_notes/utils/link.dart' as link;
 import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -41,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Container(
               width: MediaQuery.of(context).size.width,
-              child: Image.asset(Link.asset + "logo.png"),
+              child: Image.asset(link.Link.asset + "logo.png"),
             ),
             Text(
               "Notes App",
