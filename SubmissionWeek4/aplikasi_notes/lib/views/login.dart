@@ -31,8 +31,8 @@ class _LoginState extends State<Login> {
 
   void _login() async {
     final result = await http.post(link.Link.server + "login.php", body: {
-      "nim": tecNIM.text,
-      "pass": tecPassword.text,
+      "username": tecNIM.text,
+      "password": tecPassword.text,
     });
     final response = await json.decode(result.body);
     int value = response['value'];
@@ -41,19 +41,19 @@ class _LoginState extends State<Login> {
 
     if (value == 1) {
       final data = await json.decode(response['data']);
-      _user = User(data['id_user'], data['username'], data['nama_lengkap'],
-          data['jenis_kelamin'], data['tgl_daftar']);
+      _user = User(int.parse(data['id_user']), data['username'],
+          data['nama_lengkap'], data['jenis_kelamin'], data['tgl_daftar']);
       setState(() {
         _statusLogin = StatusLogin.signIn;
         _saveDataPref(value, _user);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Home(
-              user: _user,
-            ),
-          ),
-        );
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => Home(
+        //       user: _user,
+        //     ),
+        //   ),
+        // );
       });
     } else if (value == 2) {
       print(pesan);
@@ -104,14 +104,17 @@ class _LoginState extends State<Login> {
         String tglDaftar = sharedPreferences.getString("tgl_daftar");
 
         user = User(id, username, nama, jk, tglDaftar);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Home(
-              user: user,
-            ),
-          ),
-        );
+        setState(() {
+          _statusLogin = StatusLogin.signIn;
+        });
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => Home(
+        //       user: user,
+        //     ),
+        //   ),
+        // );
       }
     });
   }
@@ -139,7 +142,12 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildHome(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Home"),
+      ),
+      body: Container(),
+    );
   }
 
   Widget _buildLogin(BuildContext context) {
