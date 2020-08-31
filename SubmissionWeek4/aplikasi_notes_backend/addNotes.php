@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $judul = $_POST['judul'];
     $isi = $_POST['isi'];
 
-    $sql = $kon->query("INSERT INTO `notes`(`id_notes`, `id_user`, `judul_notes`, `isi_notes`, `tgl_buat`, `tgl_update`) VALUES (NULL,'$id','$judul','$isi',NOW(),NULL)");
+    $sql = $kon->query("INSERT INTO `notes`(`id_notes`, `id_user`, `judul_notes`, `isi_notes`, `tgl_buat`, `tgl_update`) VALUES (NULL,'$id','$judul','$isi',NOW(),NOW())");
 
     if ($sql) {
         $response['value'] = 1;
