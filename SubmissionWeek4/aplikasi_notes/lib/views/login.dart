@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:aplikasi_notes/models/shared_preferenced.dart';
 import 'package:aplikasi_notes/providers/notes_provider.dart';
 import 'package:aplikasi_notes/views/add_notes.dart';
+import 'package:aplikasi_notes/views/detail_notes.dart';
+import 'package:aplikasi_notes/views/edit_notes.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
@@ -125,6 +127,21 @@ class _LoginState extends State<Login> {
     )..show();
   }
 
+  void _dialogHapus(int id) async {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.WARNING,
+      animType: AnimType.BOTTOMSLIDE,
+      title: 'Hapus',
+      desc: 'Yakin untuk hapus notes?',
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {
+        _notesProvider.deleteNotes(context, id);
+        handleRefresh();
+      },
+    )..show();
+  }
+
   Future _dialogExit() async {
     AwesomeDialog(
       context: context,
@@ -190,12 +207,50 @@ class _LoginState extends State<Login> {
                       onPressed: () => _dialogLogout(),
                     ),
                   ],
-                  expandedHeight: 150,
+                  expandedHeight: 200,
                   flexibleSpace: FlexibleSpaceBar(
                     title: Text("Notes App"),
                     centerTitle: true,
                     background: Container(
                       decoration: BoxDecoration(color: colPrimary),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(width: 15),
+                              InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  width: 75,
+                                  height: 75,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: colSecondary,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(40),
+                                    child: Hero(
+                                        tag: 'foto',
+                                        child: Image.asset(
+                                            link.Link.asset + "foto.jpg")),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 15),
+                              Text(
+                                _user.getNama(),
+                                style: GoogleFonts.mcLaren(
+                                    color: colSecondary, fontSize: 20),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 40,
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -339,10 +394,16 @@ class _LoginState extends State<Login> {
 
   Widget _buildItemGrid(var data) {
     return InkWell(
-      onTap: () {},
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DetailNotes(
+                    data: data,
+                  ))),
       child: Hero(
         tag: data['id_notes'],
         child: Card(
+          key: ValueKey(data['id_notes']),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
@@ -355,13 +416,70 @@ class _LoginState extends State<Login> {
                   bottomRight: Radius.circular(30)),
               color: colPrimary,
             ),
-            child: Center(
-              child: AutoSizeText(
-                data['judul_notes'],
-                textAlign: TextAlign.center,
-                style: GoogleFonts.mcLaren(fontSize: 20, color: colSecondary),
-                maxLines: 3,
-              ),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -15,
+                  right: -10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 10,
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        iconSize: 20,
+                        color: colSecondary,
+                        icon: new PopupMenuButton(
+                          tooltip: "More",
+                          icon: Icon(Icons.more_vert),
+                          itemBuilder: (_) => <PopupMenuItem<String>>[
+                            new PopupMenuItem<String>(
+                                child: ListTile(
+                                    title: Text('Hapus'),
+                                    trailing: Icon(
+                                      Icons.delete,
+                                      color: colDanger,
+                                    )),
+                                value: 'hapus'),
+                            new PopupMenuItem<String>(
+                                child: ListTile(
+                                    title: Text('Edit'),
+                                    trailing: Icon(
+                                      Icons.edit,
+                                      color: colSuccess,
+                                    )),
+                                value: 'edit'),
+                          ],
+                          onSelected: (v) async {
+                            if (v == "hapus") {
+                              _dialogHapus(int.parse(data['id_notes']));
+                            } else if (v == "edit") {
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EditNotes(
+                                            data: data,
+                                          )));
+                              handleRefresh();
+                            }
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Center(
+                  child: AutoSizeText(
+                    data['judul_notes'],
+                    textAlign: TextAlign.center,
+                    style:
+                        GoogleFonts.mcLaren(fontSize: 23, color: colSecondary),
+                    maxLines: 3,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

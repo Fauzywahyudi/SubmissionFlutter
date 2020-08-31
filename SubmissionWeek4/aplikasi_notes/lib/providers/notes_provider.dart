@@ -40,4 +40,37 @@ class NotesProvider {
     }
     return data;
   }
+
+  Future<int> deleteNotes(BuildContext context, int id) async {
+    final result = await http.post(link.Link.server + "deleteNotes.php", body: {
+      "id": id.toString(),
+    });
+    final response = await json.decode(result.body);
+    int value = response['value'];
+    String pesan = response['message'];
+    if (value == 1) {
+      messageSuccess(context, pesan);
+    } else {
+      messageDanger(context, pesan);
+    }
+    return value;
+  }
+
+  Future<int> editNotes(
+      BuildContext context, int id, String judul, String isi) async {
+    final result = await http.post(link.Link.server + "editNotes.php", body: {
+      "id": id.toString(),
+      "judul": judul,
+      "isi": isi,
+    });
+    final response = await json.decode(result.body);
+    int value = response['value'];
+    String pesan = response['message'];
+    if (value == 1) {
+      messageSuccess(context, pesan);
+    } else {
+      messageDanger(context, pesan);
+    }
+    return value;
+  }
 }
