@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:aplikasi_notes/models/shared_preferenced.dart';
 import 'package:aplikasi_notes/views/add_notes.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:aplikasi_notes/models/user.dart';
 import 'package:aplikasi_notes/utils/assets.dart';
 import 'package:aplikasi_notes/utils/custom_path.dart';
 import 'package:aplikasi_notes/views/register.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:aplikasi_notes/utils/link.dart' as link;
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum StatusLogin { signIn, notSignIn }
 
@@ -20,19 +22,20 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  var tecusername = TextEditingController();
+  var tecUsername = TextEditingController();
   var tecPassword = TextEditingController();
-  var focusername = FocusNode();
+  var focuUsername = FocusNode();
   var focPassword = FocusNode();
   bool isLoading = true;
   User _user;
+  DataShared _dataShared = DataShared();
 
   StatusLogin _statusLogin = StatusLogin.notSignIn;
   final _keyForm = GlobalKey<FormState>();
 
   void _login() async {
     final result = await http.post(link.Link.server + "login.php", body: {
-      "username": tecusername.text,
+      "username": tecUsername.text,
       "password": tecPassword.text,
     });
     final response = await json.decode(result.body);
@@ -47,6 +50,8 @@ class _LoginState extends State<Login> {
       setState(() {
         _statusLogin = StatusLogin.signIn;
         _saveDataPref(value, _user);
+        tecUsername.text = "";
+        tecPassword.text = "";
       });
     } else if (value == 2) {
       messageInfo(context, pesan);
@@ -55,11 +60,9 @@ class _LoginState extends State<Login> {
     }
   }
 
-  void _logout() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
+  Future _logout() async {
+    await _dataShared.logout();
     setState(() {
-      sharedPreferences.setInt("value", null);
       _statusLogin = StatusLogin.notSignIn;
     });
   }
@@ -72,44 +75,29 @@ class _LoginState extends State<Login> {
     }
   }
 
-  void _tapRegister() {
-    Navigator.push(
+  void _tapRegister() => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Register(),
+        ),
+      );
+
+  void _tapAddNotes() => Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Register(),
-      ),
-    );
+          builder: (context) => AddNotes(), fullscreenDialog: true));
+
+  Future _saveDataPref(int value, User user) async {
+    await _dataShared.saveDataPref(value, user);
   }
 
-  void _saveDataPref(int value, User user) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      sharedPreferences.setInt("value", value);
-      sharedPreferences.setInt("id", user.getId());
-      sharedPreferences.setString("username", user.getUsername());
-      sharedPreferences.setString("nama", user.getNama());
-      sharedPreferences.setString("jk", user.getJk());
-      sharedPreferences.setString("tgl_daftar", user.getTglDaftar());
-    });
-  }
-
-  void _getDataPref() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      int nValue = sharedPreferences.getInt("value");
-      if (nValue == 1) {
-        int id = sharedPreferences.getInt("id");
-        String username = sharedPreferences.getString("username");
-        String nama = sharedPreferences.getString("nama");
-        String jk = sharedPreferences.getString("jk");
-        String tglDaftar = sharedPreferences.getString("tgl_daftar");
-
-        _user = User(id, username, nama, jk, tglDaftar);
-        setState(() {
-          _statusLogin = StatusLogin.signIn;
-        });
-      }
-    });
+  Future _getValuePref() async {
+    final value = await _dataShared.getValue();
+    if (value == 1) {
+      _statusLogin = StatusLogin.signIn;
+      _user = await _dataShared.getDataPref();
+    }
+    setState(() {});
   }
 
   Future<Null> handleRefresh() async {
@@ -121,9 +109,42 @@ class _LoginState extends State<Login> {
     return completer.future;
   }
 
+  void _dialogLogout() async {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.INFO,
+      animType: AnimType.BOTTOMSLIDE,
+      title: 'Logout',
+      desc: 'Yakin untuk Logout',
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {
+        _logout();
+        // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      },
+    )..show();
+  }
+
+  Future _dialogExit() async {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.INFO,
+      animType: AnimType.BOTTOMSLIDE,
+      title: 'Exit',
+      desc: 'Yakin Keluar Aplikasi',
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      },
+    )..show();
+  }
+
+  Future<bool> _onWillPop() async {
+    return _dialogExit();
+  }
+
   @override
   void initState() {
-    _getDataPref();
+    _getValuePref();
     setState(() {
       isLoading = false;
     });
@@ -139,7 +160,6 @@ class _LoginState extends State<Login> {
       case StatusLogin.signIn:
         return _buildHome(context);
         break;
-      default:
     }
   }
 
@@ -148,8 +168,7 @@ class _LoginState extends State<Login> {
       backgroundColor: colPrimary,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => AddNotes())),
+        onPressed: () => _tapAddNotes(),
       ),
       body: SafeArea(
         child: Container(
@@ -165,7 +184,7 @@ class _LoginState extends State<Login> {
                   actions: [
                     IconButton(
                       icon: Icon(Icons.exit_to_app),
-                      onPressed: () => _logout(),
+                      onPressed: () => _dialogLogout(),
                     ),
                   ],
                   expandedHeight: 150,
@@ -191,44 +210,47 @@ class _LoginState extends State<Login> {
     return Scaffold(
       backgroundColor: colPrimary,
       body: SafeArea(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          color: colSecondary,
+        child: WillPopScope(
+          onWillPop: _onWillPop,
           child: Container(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  CustomClip(),
-                  Text(
-                    "Login",
-                    style: GoogleFonts.mcLaren(
-                      color: colPrimary,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            color: colSecondary,
+            child: Container(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CustomClip(),
+                    Text(
+                      "Login",
+                      style: GoogleFonts.mcLaren(
+                        color: colPrimary,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _buildFormInput(),
-                  SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("No have account? "),
-                      InkWell(
-                        onTap: () => _tapRegister(),
-                        child: Text(
-                          "create here!",
-                          style: GoogleFonts.mcLaren(
-                            color: colPrimary,
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _buildFormInput(),
+                    SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("No have account? "),
+                        InkWell(
+                          onTap: () => _tapRegister(),
+                          child: Text(
+                            "create here!",
+                            style: GoogleFonts.mcLaren(
+                              color: colPrimary,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  )
-                ],
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -245,8 +267,8 @@ class _LoginState extends State<Login> {
           buildTextField(
             context: context,
             hint: "Username",
-            controller: tecusername,
-            focus: focusername,
+            controller: tecUsername,
+            focus: focuUsername,
             nextFocus: focPassword,
             icon: Icons.person,
           ),
