@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:aplikasi_notes/utils/assets.dart';
 
 class CustomClip extends StatelessWidget {
-  var asset = "assets/images/";
+  final asset = "assets/images/";
 
   @override
   Widget build(BuildContext context) {

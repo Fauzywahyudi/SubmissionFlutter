@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:aplikasi_notes/utils/assets.dart';
 import 'package:aplikasi_notes/utils/custom_path.dart';
@@ -152,34 +150,6 @@ class _RegisterState extends State<Register> {
                 color: colPrimary, fontWeight: FontWeight.bold),
           ),
         ),
-      ),
-    );
-  }
-
-  Container _buildDropDown() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      padding: const EdgeInsets.only(
-        left: 17,
-        right: 15,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colPrimary, width: 3),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.school,
-            color: colLabel,
-          ),
-          SizedBox(width: 10),
-          Text(
-            "Jurusan",
-            style: textLabel,
-          ),
-          Expanded(child: Container()),
-        ],
       ),
     );
   }
