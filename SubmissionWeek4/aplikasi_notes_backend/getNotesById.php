@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $response = array();
     $id = $_POST['id'];
     $data = array();
-    $sql = $kon->query("SELECT * FROM notes WHERE id_user ='$id' ORDER BY tgl_update DESC");
+    $sql = $kon->query("SELECT * FROM notes WHERE id_notes='$id'");
     while ($fetchData = $sql->fetch_array()) {
         $data[] = $fetchData;
     }

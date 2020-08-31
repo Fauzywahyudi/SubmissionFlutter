@@ -40,108 +40,13 @@ class _AddNotesState extends State<AddNotes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
       floatingActionButton: _buildFloatingActionButton(),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          color: colSecondary,
-        ),
-        child: Stack(
-          children: [
-            Container(
-              color: colPrimary,
-              height: 150,
-            ),
-            _buildTitleNotes(),
-            _buildContentNotes(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Padding _buildContentNotes() {
-    return Padding(
-      padding: EdgeInsets.only(top: 170, left: 10, right: 10),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+      appBar: _buildAppBar(),
+      backgroundColor: colPrimary,
+      body: SafeArea(
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadiusDirectional.circular(15),
-            color: colPrimary,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Notes Content",
-                    style:
-                        GoogleFonts.mcLaren(fontSize: 17, color: colSecondary),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 15, right: 15),
-                  child: TextField(
-                    controller: _tecIsi,
-                    style: textSecondary,
-                    minLines: 8,
-                    maxLines: 16,
-                    decoration: InputDecoration(
-                      hintText: 'Content...',
-                      border: InputBorder.none,
-                      hintStyle: textSecondary,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Padding _buildTitleNotes() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadiusDirectional.circular(15),
-            color: colSecondary,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Notes Title",
-                    style: GoogleFonts.mcLaren(fontSize: 17),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 15, right: 15),
-                  child: TextField(
-                    controller: _tecJudul,
-                    minLines: 1,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      hintText: 'Title...',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                )
-              ],
-            ),
+          child: Stack(
+            children: [_buildJudul(), _buildContent(context)],
           ),
         ),
       ),
@@ -164,5 +69,94 @@ class _AddNotesState extends State<AddNotes> {
       ),
       elevation: 0,
     );
+  }
+
+  Widget buildNew(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      backgroundColor: colPrimary,
+      body: SafeArea(
+        child: Container(
+          child: Stack(
+            children: [_buildJudul(), _buildContent(context)],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container _buildContent(BuildContext context) {
+    var media = MediaQuery.of(context);
+    return Container(
+      width: media.size.width,
+      height: media.size.height,
+      margin: EdgeInsets.only(top: 170, left: 15, right: 15, bottom: 15),
+      decoration: BoxDecoration(
+        color: colSecondary,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Isi Notes",
+                    style: GoogleFonts.mcLaren(fontSize: 20),
+                    textAlign: TextAlign.center),
+              ),
+            ),
+            Divider(),
+            Padding(
+              padding: EdgeInsets.only(left: 15, right: 15),
+              child: TextField(
+                controller: _tecIsi,
+                style: GoogleFonts.mcLaren(color: colDark),
+                minLines: 8,
+                maxLines: 16,
+                decoration: InputDecoration(
+                  hintText: 'Content...',
+                  border: InputBorder.none,
+                  hintStyle: GoogleFonts.mcLaren(color: colLabel),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container _buildJudul() {
+    return Container(
+        height: 150,
+        color: colPrimary,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 15, right: 15),
+              child: TextField(
+                controller: _tecJudul,
+                textCapitalization: TextCapitalization.words,
+                minLines: 1,
+                maxLines: 2,
+                style: GoogleFonts.mcLaren(
+                  fontSize: 25,
+                  color: colSecondary,
+                ),
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  hintText: 'Title...',
+                  hintStyle: GoogleFonts.mcLaren(
+                    fontSize: 25,
+                    color: colSecondary.withOpacity(0.7),
+                  ),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ],
+        ));
   }
 }
