@@ -23,4 +23,21 @@ class NotesProvider {
     }
     return value;
   }
+
+  Future<List> getAllNotes(BuildContext context, int id) async {
+    final result = await http.post(link.Link.server + "getAllNotes.php", body: {
+      "id": id.toString(),
+    });
+    final response = await json.decode(result.body);
+    List data;
+    int value = response['value'];
+    String pesan = response['message'];
+
+    if (value == 1) {
+      data = json.decode(response['data']);
+    } else {
+      messageDanger(context, pesan);
+    }
+    return data;
+  }
 }

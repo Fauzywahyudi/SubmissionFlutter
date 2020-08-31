@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:aplikasi_notes/models/shared_preferenced.dart';
+import 'package:aplikasi_notes/providers/notes_provider.dart';
 import 'package:aplikasi_notes/views/add_notes.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:aplikasi_notes/models/user.dart';
@@ -26,9 +27,10 @@ class _LoginState extends State<Login> {
   var tecPassword = TextEditingController();
   var focuUsername = FocusNode();
   var focPassword = FocusNode();
-  bool isLoading = true;
   User _user;
   DataShared _dataShared = DataShared();
+  NotesProvider _notesProvider = NotesProvider();
+  List _dataNotes;
 
   StatusLogin _statusLogin = StatusLogin.notSignIn;
   final _keyForm = GlobalKey<FormState>();
@@ -119,7 +121,6 @@ class _LoginState extends State<Login> {
       btnCancelOnPress: () {},
       btnOkOnPress: () {
         _logout();
-        // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
       },
     )..show();
   }
@@ -142,12 +143,14 @@ class _LoginState extends State<Login> {
     return _dialogExit();
   }
 
+  Future<List> _getAllNotes() async {
+    final result = await _notesProvider.getAllNotes(context, _user.getId());
+    return result;
+  }
+
   @override
   void initState() {
     _getValuePref();
-    setState(() {
-      isLoading = false;
-    });
     super.initState();
   }
 
@@ -173,10 +176,10 @@ class _LoginState extends State<Login> {
       body: SafeArea(
         child: Container(
           color: colSecondary,
-          child: RefreshIndicator(
-            onRefresh: handleRefresh,
-            child: CustomScrollView(
-              slivers: [
+          child: NestedScrollView(
+            headerSliverBuilder:
+                (BuildContext context, bool innerViewIsScrolled) {
+              return <Widget>[
                 SliverAppBar(
                   pinned: true,
                   floating: true,
@@ -196,9 +199,33 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
-                _buildSliverGrid(),
-                SliverPadding(padding: EdgeInsets.only(top: 100))
-              ],
+              ];
+            },
+            body: Container(
+              padding: EdgeInsets.all(10),
+              child: FutureBuilder<List>(
+                future: _getAllNotes(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) print(snapshot.error);
+                  return snapshot.hasData
+                      ? RefreshIndicator(
+                          onRefresh: handleRefresh,
+                          child: GridView.builder(
+                              itemCount: snapshot.data.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 200.0,
+                                mainAxisSpacing: 10.0,
+                                crossAxisSpacing: 10.0,
+                                childAspectRatio: 1.3,
+                              ),
+                              itemBuilder: (context, index) {
+                                return _buildItemGrid(snapshot.data[index]);
+                              }),
+                        )
+                      : Center(child: CircularProgressIndicator());
+                },
+              ),
             ),
           ),
         ),
@@ -310,26 +337,35 @@ class _LoginState extends State<Login> {
     );
   }
 
-  SliverPadding _buildSliverGrid() {
-    return SliverPadding(
-      padding: EdgeInsets.all(10),
-      sliver: SliverGrid(
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200.0,
-          mainAxisSpacing: 10.0,
-          crossAxisSpacing: 10.0,
-          childAspectRatio: 0.9,
+  Widget _buildItemGrid(var data) {
+    return InkWell(
+      onTap: () {},
+      child: Hero(
+        tag: data['id_notes'],
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30)),
+              color: colPrimary,
+            ),
+            child: Center(
+              child: AutoSizeText(
+                data['judul_notes'],
+                textAlign: TextAlign.center,
+                style: GoogleFonts.mcLaren(fontSize: 20, color: colSecondary),
+                maxLines: 3,
+              ),
+            ),
+          ),
         ),
-        delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-          return _buildItemGrid();
-        }, childCount: 10),
       ),
-    );
-  }
-
-  Card _buildItemGrid() {
-    return Card(
-      child: Center(),
     );
   }
 }
