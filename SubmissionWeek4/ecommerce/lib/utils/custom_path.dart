@@ -4,6 +4,9 @@ import 'package:ecommerce/utils/assets.dart';
 
 class CustomClip extends StatelessWidget {
   final asset = "assets/images/";
+  final double height;
+
+  const CustomClip({Key key, this.height}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +16,13 @@ class CustomClip extends StatelessWidget {
           clipper: WaveClipperOne(),
           child: Container(
             color: colPrimary,
-            height: 200,
+            height: height,
           ),
         ),
         Container(
           padding: EdgeInsets.all(20),
           width: MediaQuery.of(context).size.width,
-          height: 175,
+          height: height - 50,
           child: Hero(tag: "logo", child: Image.asset(asset + "logo.png")),
         ),
       ],

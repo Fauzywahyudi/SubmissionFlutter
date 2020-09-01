@@ -12,13 +12,17 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  var tecUsername = TextEditingController();
-  var tecPassword = TextEditingController();
-  var tecNama = TextEditingController();
+  var _tecEmail = TextEditingController();
+  var _tecPassword = TextEditingController();
+  var _tecNama = TextEditingController();
+  var _tecNohp = TextEditingController();
+  var _tecAlamat = TextEditingController();
 
-  var focNIM = FocusNode();
-  var focPassword = FocusNode();
-  var focNama = FocusNode();
+  var _focEmail = FocusNode();
+  var _focPassword = FocusNode();
+  var _focNama = FocusNode();
+  var _focNohp = FocusNode();
+  var _focAlamat = FocusNode();
 
   final _keyForm = GlobalKey<FormState>();
 
@@ -31,10 +35,11 @@ class _RegisterState extends State<Register> {
 
   void _register() async {
     final result = await http.post(link.Link.server + "register.php", body: {
-      "username": tecUsername.text,
-      "password": tecPassword.text,
-      "nama": tecNama.text,
-      "jk": jenisKelamin,
+      "email": _tecEmail.text,
+      "password": _tecPassword.text,
+      "nama": _tecNama.text,
+      "nohp": _tecNohp.text,
+      "alamat": _tecAlamat.text,
     });
     final response = await json.decode(result.body);
     int value = response['value'];
@@ -52,10 +57,27 @@ class _RegisterState extends State<Register> {
 
   void _cekForm() {
     final form = _keyForm.currentState;
-    if (form.validate() && jenisKelamin.isNotEmpty) {
+    if (form.validate() && _validEmail() && _validNohp()) {
       form.save();
       _register();
+    } else {
+      if (!_validEmail()) {
+        messageInfo(context, "Email tidak valid");
+      } else if (!_validNohp()) {
+        messageInfo(context, "Nohp tidak valid");
+      }
     }
+  }
+
+  bool _validEmail() {
+    if (_tecEmail.text.contains(" ")) return false;
+    if (_tecEmail.text.contains("@")) return true;
+    return false;
+  }
+
+  bool _validNohp() {
+    if (_tecNohp.text.length > 10 && _tecNohp.text.length < 15) return true;
+    return false;
   }
 
   @override
@@ -71,7 +93,9 @@ class _RegisterState extends State<Register> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  CustomClip(),
+                  CustomClip(
+                    height: 200,
+                  ),
                   Text(
                     "Register",
                     style: GoogleFonts.mcLaren(
@@ -101,31 +125,48 @@ class _RegisterState extends State<Register> {
         children: [
           buildTextField(
             context: context,
-            hint: "Username",
-            controller: tecUsername,
-            focus: focNIM,
-            nextFocus: focPassword,
-            inputType: TextInputType.number,
+            hint: "Email",
+            controller: _tecEmail,
+            focus: _focEmail,
+            nextFocus: _focPassword,
+            inputType: TextInputType.emailAddress,
             icon: Icons.person,
           ),
           buildTextField(
             context: context,
             hint: "Password",
-            controller: tecPassword,
-            focus: focPassword,
-            nextFocus: focNama,
+            controller: _tecPassword,
+            focus: _focPassword,
+            nextFocus: _focNama,
             icon: Icons.lock,
             obscure: true,
           ),
           buildTextField(
             context: context,
             hint: "Nama Lengkap",
-            controller: tecNama,
-            focus: focNama,
+            controller: _tecNama,
+            focus: _focNama,
+            nextFocus: _focNohp,
             icon: Icons.person,
             textCapital: TextCapitalization.words,
           ),
-          _buildRadio(),
+          buildTextField(
+            context: context,
+            hint: "No. HP",
+            controller: _tecNohp,
+            focus: _focNohp,
+            nextFocus: _focAlamat,
+            icon: Icons.call,
+            inputType: TextInputType.phone,
+          ),
+          buildTextField(
+            context: context,
+            hint: "Alamat",
+            controller: _tecAlamat,
+            focus: _focAlamat,
+            icon: Icons.home,
+            textCapital: TextCapitalization.words,
+          ),
           SizedBox(height: 20),
           _buildButton(),
           SizedBox(height: 20),
@@ -150,77 +191,6 @@ class _RegisterState extends State<Register> {
                 color: colPrimary, fontWeight: FontWeight.bold),
           ),
         ),
-      ),
-    );
-  }
-
-  Container _buildRadio() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colPrimary, width: 3),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 17,
-              top: 10,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.wc,
-                  color: colLabel,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  "Jenis Kelamin",
-                  style: textLabel,
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              Radio(
-                  value: "Laki-laki",
-                  groupValue: jenisKelamin,
-                  onChanged: (v) {
-                    setState(() {
-                      jenisKelamin = v;
-                    });
-                  }),
-              InkWell(
-                child: Text("Laki-laki"),
-                onTap: () {
-                  setState(() {
-                    jenisKelamin = "Laki-laki";
-                  });
-                },
-              ),
-              SizedBox(width: 20),
-              Radio(
-                  value: "Perempuan",
-                  groupValue: jenisKelamin,
-                  onChanged: (v) {
-                    setState(() {
-                      jenisKelamin = v;
-                    });
-                  }),
-              InkWell(
-                child: Text("Perempuan"),
-                onTap: () {
-                  setState(() {
-                    jenisKelamin = "Perempuan";
-                  });
-                },
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

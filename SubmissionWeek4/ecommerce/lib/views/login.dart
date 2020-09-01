@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ecommerce/models/shared_preferenced.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:ecommerce/providers/kategori_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce/models/user.dart';
 import 'package:ecommerce/utils/assets.dart';
@@ -21,20 +22,21 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  var tecUsername = TextEditingController();
-  var tecPassword = TextEditingController();
-  var focuUsername = FocusNode();
-  var focPassword = FocusNode();
+  var _tecEmail = TextEditingController();
+  var _tecPassword = TextEditingController();
+  var _focuEmail = FocusNode();
+  var _focPassword = FocusNode();
   User _user;
   DataShared _dataShared = DataShared();
   // NotesProvider _notesProvider = NotesProvider();
+  KategoriProvider _kategoriProvider = KategoriProvider();
   StatusLogin _statusLogin = StatusLogin.notSignIn;
   final _keyForm = GlobalKey<FormState>();
 
   void _login() async {
     final result = await http.post(link.Link.server + "login.php", body: {
-      "username": tecUsername.text,
-      "password": tecPassword.text,
+      "email": _tecEmail.text,
+      "password": _tecPassword.text,
     });
     final response = await json.decode(result.body);
     int value = response['value'];
@@ -48,8 +50,8 @@ class _LoginState extends State<Login> {
       setState(() {
         _statusLogin = StatusLogin.signIn;
         _saveDataPref(value, _user);
-        tecUsername.text = "";
-        tecPassword.text = "";
+        _tecEmail.text = "";
+        _tecPassword.text = "";
       });
     } else if (value == 2) {
       messageInfo(context, pesan);
@@ -67,10 +69,20 @@ class _LoginState extends State<Login> {
 
   void _cekForm() {
     final form = _keyForm.currentState;
-    if (form.validate()) {
+    if (form.validate() && _validEmail()) {
       form.save();
       _login();
+    } else {
+      if (!_validEmail()) {
+        messageInfo(context, "Email tidak valid");
+      }
     }
+  }
+
+  bool _validEmail() {
+    if (_tecEmail.text.contains(" ")) return false;
+    if (_tecEmail.text.contains("@")) return true;
+    return false;
   }
 
   void _tapRegister() => Navigator.push(
@@ -157,9 +169,9 @@ class _LoginState extends State<Login> {
     return _dialogExit();
   }
 
-  Future<List> _getAllNotes() async {
-    // final result = await _notesProvider.getAllNotes(context, _user.getId());
-    // return result;
+  Future<List> _getKategori() async {
+    final result = await _kategoriProvider.getAllKategori(context);
+    return result;
   }
 
   @override
@@ -200,92 +212,83 @@ class _LoginState extends State<Login> {
                     pinned: true,
                     floating: true,
                     snap: true,
-                    actions: [
-                      IconButton(
-                        icon: Icon(Icons.exit_to_app),
-                        onPressed: () => _dialogLogout(),
-                      ),
-                    ],
                     expandedHeight: 200,
-                    flexibleSpace: FlexibleSpaceBar(
-                      title: Text("Notes App"),
-                      centerTitle: true,
-                      background: Container(
-                        decoration: BoxDecoration(color: colPrimary),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(width: 15),
-                                InkWell(
-                                  onTap: () {},
-                                  child: Container(
-                                    padding: EdgeInsets.all(2),
-                                    width: 75,
-                                    height: 75,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: colSecondary,
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(40),
-                                      child: Hero(
-                                          tag: 'foto',
-                                          child: Image.asset(
-                                              link.Link.asset + "foto.jpg")),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 15),
-                                Text(
-                                  _user.getNama(),
-                                  style: GoogleFonts.mcLaren(
-                                      color: colSecondary, fontSize: 20),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 40,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
+                    flexibleSpace: _buildFlexibleSpaceBar(),
                   ),
                 ];
               },
               body: Container(
                 padding: EdgeInsets.all(10),
                 child: FutureBuilder<List>(
-                  future: _getAllNotes(),
+                  future: _getKategori(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) print(snapshot.error);
                     return snapshot.hasData
-                        ? RefreshIndicator(
-                            onRefresh: handleRefresh,
-                            child: snapshot.data.isEmpty
-                                ? _noNotif()
-                                : GridView.builder(
-                                    itemCount: snapshot.data.length,
-                                    gridDelegate:
-                                        SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 200.0,
-                                      mainAxisSpacing: 10.0,
-                                      crossAxisSpacing: 10.0,
-                                      childAspectRatio: 1.3,
-                                    ),
-                                    itemBuilder: (context, index) {
-                                      return _buildItemGrid(
-                                          snapshot.data[index]);
-                                    }),
-                          )
+                        ? GridView.builder(
+                            itemCount: snapshot.data.length,
+                            scrollDirection: Axis.horizontal,
+                            gridDelegate:
+                                SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 200.0,
+                              mainAxisSpacing: 10.0,
+                              crossAxisSpacing: 10.0,
+                              childAspectRatio: 1.3,
+                            ),
+                            itemBuilder: (context, index) {
+                              return _buildItemGrid(snapshot.data[index]);
+                            })
                         : Center(child: CircularProgressIndicator());
                   },
                 ),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  FlexibleSpaceBar _buildFlexibleSpaceBar() {
+    return FlexibleSpaceBar(
+      title: Text("Ecommerce App"),
+      centerTitle: true,
+      background: Container(
+        decoration: BoxDecoration(color: colPrimary),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              children: [
+                SizedBox(width: 15),
+                InkWell(
+                  onTap: () {},
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    width: 75,
+                    height: 75,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: colSecondary,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      child: Hero(
+                          tag: 'foto',
+                          child: Image.asset(link.Link.asset + "foto.jpg")),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15),
+                Text(
+                  _user.getNama(),
+                  style: GoogleFonts.mcLaren(color: colSecondary, fontSize: 20),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 40,
+            )
+          ],
         ),
       ),
     );
@@ -305,7 +308,7 @@ class _LoginState extends State<Login> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    CustomClip(),
+                    CustomClip(height: 300.0),
                     Text(
                       "Login",
                       style: GoogleFonts.mcLaren(
@@ -351,17 +354,17 @@ class _LoginState extends State<Login> {
         children: [
           buildTextField(
             context: context,
-            hint: "Username",
-            controller: tecUsername,
-            focus: focuUsername,
-            nextFocus: focPassword,
+            hint: "Email",
+            controller: _tecEmail,
+            focus: _focuEmail,
+            nextFocus: _focPassword,
             icon: Icons.person,
           ),
           buildTextField(
             context: context,
             hint: "Password",
-            controller: tecPassword,
-            focus: focPassword,
+            controller: _tecPassword,
+            focus: _focPassword,
             icon: Icons.lock,
             obscure: true,
           ),
