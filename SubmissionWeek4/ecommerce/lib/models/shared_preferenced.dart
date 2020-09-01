@@ -14,6 +14,17 @@ class DataShared {
     return value;
   }
 
+  Future<bool> getValueOnboarding() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    bool value = sharedPreferences.getBool("onboarding");
+    return value;
+  }
+
+  Future setValueOnboarding(bool value) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setBool("onboarding", value);
+  }
+
   Future<User> getDataPref() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     User user;
