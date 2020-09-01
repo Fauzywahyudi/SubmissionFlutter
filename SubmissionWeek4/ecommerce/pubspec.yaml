@@ -39,6 +39,7 @@ dependencies:
   intro_screen_onboarding_flutter: ^0.1.5
   google_nav_bar: ^3.0.0
   line_icons: ^0.2.0
+  intl: ^0.16.1
 
 dev_dependencies:
   flutter_test:
