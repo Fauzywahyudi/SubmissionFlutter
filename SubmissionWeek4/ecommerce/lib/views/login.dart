@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ecommerce/models/shared_preferenced.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:ecommerce/models/status_login.dart';
 import 'package:ecommerce/providers/kategori_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce/models/user.dart';
@@ -11,10 +12,10 @@ import 'package:ecommerce/utils/custom_path.dart';
 import 'package:ecommerce/views/register.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:ecommerce/utils/link.dart' as link;
-
-enum StatusLogin { signIn, notSignIn }
+import 'package:line_icons/line_icons.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -174,6 +175,28 @@ class _LoginState extends State<Login> {
     return result;
   }
 
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Home',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 1: Likes',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 2: Search',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 3: Profile',
+      style: optionStyle,
+    ),
+  ];
+
   @override
   void initState() {
     _getValuePref();
@@ -195,10 +218,6 @@ class _LoginState extends State<Login> {
   Widget _buildHome(BuildContext context) {
     return Scaffold(
       backgroundColor: colPrimary,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => _tapAddNotes(),
-      ),
       body: SafeArea(
         child: WillPopScope(
           onWillPop: _onWillPop,
@@ -217,33 +236,90 @@ class _LoginState extends State<Login> {
                   ),
                 ];
               },
-              body: Container(
-                padding: EdgeInsets.all(10),
-                child: FutureBuilder<List>(
-                  future: _getKategori(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) print(snapshot.error);
-                    return snapshot.hasData
-                        ? GridView.builder(
-                            itemCount: snapshot.data.length,
-                            scrollDirection: Axis.horizontal,
-                            gridDelegate:
-                                SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200.0,
-                              mainAxisSpacing: 10.0,
-                              crossAxisSpacing: 10.0,
-                              childAspectRatio: 1.3,
-                            ),
-                            itemBuilder: (context, index) {
-                              return _buildItemGrid(snapshot.data[index]);
-                            })
-                        : Center(child: CircularProgressIndicator());
-                  },
-                ),
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Text(
+                      "Kategori",
+                      style: GoogleFonts.mcLaren(
+                        color: colPrimary,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  _listFutureBuilder(),
+                  Divider(),
+                ],
               ),
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(color: Colors.white, boxShadow: [
+          BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(.1))
+        ]),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
+            child: GNav(
+                gap: 8,
+                activeColor: Colors.white,
+                iconSize: 24,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                duration: Duration(milliseconds: 800),
+                tabBackgroundColor: colPrimary,
+                tabs: [
+                  GButton(
+                    icon: LineIcons.home,
+                    text: 'Home',
+                  ),
+                  GButton(
+                    icon: LineIcons.heart_o,
+                    text: 'Likes',
+                  ),
+                  GButton(
+                    icon: LineIcons.search,
+                    text: 'Search',
+                  ),
+                  GButton(
+                    icon: LineIcons.user,
+                    text: 'Profile',
+                  ),
+                ],
+                selectedIndex: _selectedIndex,
+                onTabChange: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                }),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container _listFutureBuilder() {
+    return Container(
+      height: 160,
+      padding: EdgeInsets.only(top: 15, bottom: 15),
+      child: FutureBuilder<List>(
+        future: _getKategori(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) print(snapshot.error);
+          return snapshot.hasData
+              ? ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) {
+                    return _buildItemGrid(snapshot.data[index]);
+                  },
+                )
+              : Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
@@ -401,98 +477,35 @@ class _LoginState extends State<Login> {
   Widget _buildItemGrid(var data) {
     return InkWell(
       onTap: () async {
-        // await Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => DetailNotes(
-        //       data: data,
-        //     ),
-        //   ),
-        // );
-        handleRefresh();
+        print(data['nama_kategori']);
       },
-      child: Hero(
-        tag: data['id_notes'],
-        child: Card(
-          key: ValueKey(data['id_notes']),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
-          ),
-          child: Container(
-            padding: EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30)),
-              color: colPrimary,
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -15,
-                  right: -10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 10,
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        iconSize: 20,
-                        color: colSecondary,
-                        icon: new PopupMenuButton(
-                          tooltip: "More",
-                          icon: Icon(Icons.more_vert),
-                          itemBuilder: (_) => <PopupMenuItem<String>>[
-                            new PopupMenuItem<String>(
-                                child: ListTile(
-                                    title: Text('Hapus'),
-                                    trailing: Icon(
-                                      Icons.delete,
-                                      color: colDanger,
-                                    )),
-                                value: 'hapus'),
-                            new PopupMenuItem<String>(
-                                child: ListTile(
-                                    title: Text('Edit'),
-                                    trailing: Icon(
-                                      Icons.edit,
-                                      color: colSuccess,
-                                    )),
-                                value: 'edit'),
-                          ],
-                          onSelected: (v) async {
-                            if (v == "hapus") {
-                              _dialogHapus(int.parse(data['id_notes']));
-                            } else if (v == "edit") {
-                              // await Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => EditNotes(
-                              //               data: data,
-                              //             )));
-                              handleRefresh();
-                            }
-                          },
-                        ),
-                      )
-                    ],
-                  ),
+      child: Container(
+        width: 100,
+        child: Column(
+          children: [
+            Container(
+              height: 80,
+              width: 80,
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colPrimary,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: Image.network(
+                  link.Link.imageKategori + data['icon_kategori'],
+                  fit: BoxFit.cover,
                 ),
-                Center(
-                  child: AutoSizeText(
-                    data['judul_notes'],
-                    textAlign: TextAlign.center,
-                    style:
-                        GoogleFonts.mcLaren(fontSize: 23, color: colSecondary),
-                    maxLines: 3,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            AutoSizeText(
+              data['nama_kategori'],
+              textAlign: TextAlign.center,
+              style: GoogleFonts.mcLaren(fontSize: 15),
+              maxLines: 2,
+            )
+          ],
         ),
       ),
     );
@@ -514,6 +527,7 @@ class _LoginState extends State<Login> {
           Container(
             child: Text(
               "Tidak Ada Notes",
+              textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey, fontSize: 25),
             ),
           )

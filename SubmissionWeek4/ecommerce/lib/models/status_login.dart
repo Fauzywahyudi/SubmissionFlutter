@@ -1,0 +1,1 @@
+enum StatusLogin { signIn, notSignIn }
