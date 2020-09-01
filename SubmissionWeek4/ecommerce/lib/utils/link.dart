@@ -4,4 +4,5 @@ class Link {
 
   static final String asset = "assets/images/";
   static final String imageKategori = server + "images/kategori/";
+  static final String imageProduk = server + "images/produk/";
 }
