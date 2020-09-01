@@ -71,7 +71,9 @@ class _RegisterState extends State<Register> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  CustomClip(),
+                  CustomClip(
+                    height: 200,
+                  ),
                   Text(
                     "Register",
                     style: GoogleFonts.mcLaren(

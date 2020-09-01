@@ -309,7 +309,7 @@ class _LoginState extends State<Login> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    CustomClip(),
+                    CustomClip(height: 300),
                     Text(
                       "Login",
                       style: GoogleFonts.mcLaren(
