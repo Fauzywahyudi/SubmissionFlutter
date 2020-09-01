@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerce/models/shared_preferenced.dart';
-import 'package:ecommerce/models/status_login.dart';
 import 'package:ecommerce/models/user.dart';
-import 'package:ecommerce/providers/kategori_provider.dart';
 import 'package:ecommerce/utils/assets.dart';
 import 'package:ecommerce/utils/custom_path.dart';
+import 'package:ecommerce/views/login.dart';
 import 'package:ecommerce/views/register.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,8 +27,8 @@ class _BuildLoginState extends State<BuildLogin> {
 
   User _user;
   DataShared _dataShared = DataShared();
-  KategoriProvider _kategoriProvider = KategoriProvider();
-  StatusLogin _statusLogin = StatusLogin.notSignIn;
+  // KategoriProvider _kategoriProvider = KategoriProvider();
+  // StatusLogin _statusLogin = StatusLogin.notSignIn;
 
   Future<bool> _onWillPop() async {
     return _dialogExit();
@@ -69,10 +68,10 @@ class _BuildLoginState extends State<BuildLogin> {
       _user = User(int.parse(data['id_user']), data['email'], data['nama'],
           data['nohp'], data['alamat'], data['tgl_daftar']);
       setState(() {
-        // _statusLogin = StatusLogin.signIn;
         _saveDataPref(value, _user);
         _tecEmail.text = "";
         _tecPassword.text = "";
+        pushReplacePage(context, Login());
       });
     } else if (value == 2) {
       messageInfo(context, pesan);

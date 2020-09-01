@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:ecommerce/utils/assets.dart';
-import 'package:ecommerce/utils/assets/navigator.dart';
 import 'package:ecommerce/views/detail_toko.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -260,12 +259,9 @@ class _DetailProdukState extends State<DetailProduk> {
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width,
-                  child: Hero(
-                    tag: widget.data['id_produk'],
-                    child: Image.network(
-                      link.Link.imageProduk + widget.data['thumbnail'],
-                      fit: BoxFit.cover,
-                    ),
+                  child: Image.network(
+                    link.Link.imageProduk + widget.data['thumbnail'],
+                    fit: BoxFit.cover,
                   ),
                 ),
                 Container(

@@ -1,7 +1,9 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:ecommerce/models/toko.dart';
 import 'package:ecommerce/providers/toko_provider.dart';
 import 'package:ecommerce/utils/assets/color.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DetailToko extends StatefulWidget {
   final idToko;
@@ -37,14 +39,35 @@ class _DetailTokoState extends State<DetailToko> {
     return Hero(
       tag: widget.idToko,
       child: Scaffold(
+        backgroundColor: colPrimary,
         body: _isLoading
             ? Container(
                 child: Center(child: CircularProgressIndicator()),
               )
             : Container(
                 color: colPrimary,
-                child: Center(
-                  child: Text(_dataToko.getNamaToko()),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        _dataToko.getNamaToko(),
+                        style: GoogleFonts.mcLaren(
+                          color: colSecondary,
+                          fontSize: 25,
+                        ),
+                      ),
+                      AutoSizeText(
+                        _dataToko.getAlamatToko(),
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        style: GoogleFonts.mcLaren(
+                          color: colSecondary,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
       ),
