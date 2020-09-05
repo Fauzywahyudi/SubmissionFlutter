@@ -90,7 +90,7 @@ class ListBuilder extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(10),
                   child: Text(
                     data[index]['snippet']['title'],
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
