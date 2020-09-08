@@ -32,6 +32,15 @@ dependencies:
   http: ^0.12.2
   webview_plugin: ^0.0.1
   google_fonts: ^1.1.0
+  flutter_svg:
+  flutter_custom_clippers: ^1.1.1
+  shared_preferences: ^0.5.10
+  awesome_dialog: ^1.2.0
+  auto_size_text: ^2.1.0
+  intro_screen_onboarding_flutter: ^0.1.5
+  google_nav_bar: ^3.0.0
+  line_icons: ^0.2.0
+  intl: ^0.16.1
 
 dev_dependencies:
   flutter_test:
