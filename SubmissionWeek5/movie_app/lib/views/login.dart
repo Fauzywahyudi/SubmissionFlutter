@@ -2,11 +2,12 @@ import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:movie_app/models/user.dart';
 import 'package:movie_app/repository/shared_preferenced.dart';
 // import 'package:movie_app/models/status_login.dart';
 import 'package:movie_app/utils/assets.dart';
 import 'package:flutter/material.dart';
-// import 'package:movie_app/models/user.dart';
+import 'package:movie_app/views/home.dart';
 import 'package:movie_app/views/register.dart';
 
 class Login extends StatefulWidget {
@@ -15,18 +16,17 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  // User _user;
   DataShared _dataShared = DataShared();
-  // StatusLogin _statusLogin = StatusLogin.notSignIn;
   bool _isLoading = true;
 
   Future _getValuePref() async {
     final value = await _dataShared.getValue();
     if (value == 1) {
-      // _statusLogin = StatusLogin.signIn;
-      // _user = await _dataShared.getDataPref();
+      pushReplacePage(context, HomePage());
     }
-    setState(() {});
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<Null> handleRefresh() async {
@@ -47,23 +47,30 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: colPrimary,
       body: _isLoading ? LoadingWidget() : FormLogin(context),
     );
   }
 }
 
-class FormLogin extends StatelessWidget {
+class FormLogin extends StatefulWidget {
   final BuildContext context;
   FormLogin(this.context);
 
+  @override
+  _FormLoginState createState() => _FormLoginState();
+}
+
+class _FormLoginState extends State<FormLogin> {
   final _keyForm = GlobalKey<FormState>();
 
   var _tecUsername = TextEditingController();
+
   var _tecPassword = TextEditingController();
 
   Future _dialogExit() async {
     AwesomeDialog(
-      context: context,
+      context: widget.context,
       dialogType: DialogType.INFO,
       animType: AnimType.BOTTOMSLIDE,
       title: 'Exit',
@@ -81,69 +88,106 @@ class FormLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var mediaSize = MediaQuery.of(context).size;
     return SafeArea(
       child: WillPopScope(
         onWillPop: _onWillPop,
         child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
+          height: mediaSize.height,
+          width: mediaSize.width,
           color: colSecondary,
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // CustomClip(height: 300.0),
-                Text(
-                  "Login",
-                  style: GoogleFonts.mcLaren(
-                    color: colPrimary,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  height: 250,
+                  color: colPrimary,
+                  child: Center(
+                    child: Text(
+                      "Login",
+                      style: GoogleFonts.mcLaren(
+                        color: colSecondary,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                Form(
-                  key: _keyForm,
-                  child: Column(
+                Container(
+                  child: Stack(
                     children: [
-                      TextFormField(
-                        controller: _tecUsername,
-                        decoration: InputDecoration(
-                          hintText: "Username",
-                          prefixIcon: Icon(Icons.person),
+                      Container(
+                        color: colPrimary,
+                        height: mediaSize.height - 250,
+                      ),
+                      Container(
+                        height: mediaSize.height - 200,
+                        padding: EdgeInsets.only(top: 80, left: 20),
+                        margin: EdgeInsets.only(left: 15),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(100),
+                            ),
+                            color: colSecondary),
+                        child: Form(
+                          key: _keyForm,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _tecUsername,
+                                decoration: InputDecoration(
+                                  hintText: "Username",
+                                  prefixIcon: Icon(Icons.person),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              TextFormField(
+                                controller: _tecPassword,
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  hintText: "Password",
+                                  prefixIcon: Icon(Icons.lock),
+                                ),
+                              ),
+                              SizedBox(height: 40),
+                              MaterialButton(
+                                minWidth: 200,
+                                height: 60,
+                                color: colPrimary,
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                                onPressed: () {},
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                      color: colSecondary, fontSize: 20),
+                                ),
+                              ),
+                              SizedBox(height: 60),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("No have account? "),
+                                  InkWell(
+                                    onTap: () => pushPage(context, Register()),
+                                    child: Text(
+                                      "create here!",
+                                      style: GoogleFonts.mcLaren(
+                                        color: colPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
                         ),
                       ),
-                      TextFormField(
-                        controller: _tecPassword,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: "Password",
-                          prefixIcon: Icon(Icons.lock),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      // _buildButton(),
-                      SizedBox(height: 20),
                     ],
                   ),
                 ),
-                SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("No have account? "),
-                    InkWell(
-                      onTap: () => pushPage(context, Register()),
-                      child: Text(
-                        "create here!",
-                        style: GoogleFonts.mcLaren(
-                          color: colPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
               ],
             ),
           ),

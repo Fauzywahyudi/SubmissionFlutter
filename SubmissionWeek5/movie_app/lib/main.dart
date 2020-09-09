@@ -1,5 +1,7 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app/views/home.dart';
+import 'package:movie_app/views/splashscreen.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,11 +12,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Movie App',
+      navigatorObservers: [
+        BotToastNavigatorObserver()
+      ], //Register route observer
+      builder: BotToastInit(),
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blueGrey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+      home: SplashScreen(),
     );
   }
 }

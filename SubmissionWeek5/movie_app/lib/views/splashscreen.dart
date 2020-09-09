@@ -1,10 +1,10 @@
 import 'dart:async';
-// import 'package:movie_app/models/shared_preferenced.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:movie_app/utils/assets.dart';
-// import 'package:movie_app/views/login.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app/utils/link.dart' as link;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:movie_app/views/login.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -16,20 +16,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    Timer(Duration(seconds: 3), () => _cekOnboarding());
+    Timer(Duration(seconds: 3), () => pushReplacePage(context, Login()));
     super.initState();
-  }
-
-  Future _cekOnboarding() async {
-    // final result = await _dataShared.getValueOnboarding();
-    // bool value = result ?? false;
-    // if (value) {
-    //   Navigator.pushReplacement(
-    //       context, MaterialPageRoute(builder: (context) => Login()));
-    // } else {
-    //   Navigator.pushReplacement(
-    //       context, MaterialPageRoute(builder: (context) => OnBoardingPage()));
-    // }
   }
 
   @override
@@ -38,27 +26,25 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: colPrimary,
       body: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.deepOrange[200],
-            colPrimary,
-          ],
-        )),
+          color: colSecondary,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: MediaQuery.of(context).size.width,
+              height: 400,
               padding: EdgeInsets.all(20),
-              child: Image.asset(link.Link.asset + "logo.png"),
+              child: SvgPicture.asset(
+                link.Link.asset + "logo.svg",
+                fit: BoxFit.cover,
+              ),
             ),
             SizedBox(height: 20),
             Text(
               "Ecommerce App",
               style: GoogleFonts.mcLaren(
-                color: colSecondary,
+                color: colPrimary,
                 fontSize: 40,
               ),
             )

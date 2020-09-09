@@ -18,11 +18,11 @@ class _RegisterState extends State<Register> {
   var _tecNohp = TextEditingController();
   var _tecAlamat = TextEditingController();
 
-  var _focEmail = FocusNode();
-  var _focPassword = FocusNode();
-  var _focNama = FocusNode();
-  var _focNohp = FocusNode();
-  var _focAlamat = FocusNode();
+  // var _focEmail = FocusNode();
+  // var _focPassword = FocusNode();
+  // var _focNama = FocusNode();
+  // var _focNohp = FocusNode();
+  // var _focAlamat = FocusNode();
 
   final _keyForm = GlobalKey<FormState>();
 
@@ -90,28 +90,22 @@ class _RegisterState extends State<Register> {
           height: mediaSize.height,
           width: mediaSize.width,
           color: colSecondary,
-          child: Container(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // CustomClip(
-                  //   height: 200,
-                  // ),
-                  SizedBox(height: 200),
-                  Text(
-                    "Register",
-                    style: GoogleFonts.mcLaren(
-                      color: colPrimary,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 200),
+                Text(
+                  "Register",
+                  style: GoogleFonts.mcLaren(
+                    color: colPrimary,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _buildFormInput(),
-                ],
-              ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
             ),
           ),
         ),
