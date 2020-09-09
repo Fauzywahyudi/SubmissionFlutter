@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              "Ecommerce App",
+              "Movie App",
               style: GoogleFonts.mcLaren(
                 color: colPrimary,
                 fontSize: 40,
