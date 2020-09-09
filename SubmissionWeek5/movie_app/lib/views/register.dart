@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:movie_app/utils/assets.dart';
 // import 'package:movie_app/utils/custom_path.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -57,22 +58,14 @@ class _RegisterState extends State<Register> {
 
   void _cekForm() {
     final form = _keyForm.currentState;
-    if (form.validate() && _validEmail() && _validNohp()) {
+    if (form.validate() && _validNohp()) {
       form.save();
       _register();
     } else {
-      if (!_validEmail()) {
-        messageInfo(context, "Email tidak valid");
-      } else if (!_validNohp()) {
+      if (!_validNohp()) {
         messageInfo(context, "Nohp tidak valid");
       }
     }
-  }
-
-  bool _validEmail() {
-    if (_tecEmail.text.contains(" ")) return false;
-    if (_tecEmail.text.contains("@")) return true;
-    return false;
   }
 
   bool _validNohp() {
@@ -93,98 +86,140 @@ class _RegisterState extends State<Register> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 200),
-                Text(
-                  "Register",
-                  style: GoogleFonts.mcLaren(
-                    color: colPrimary,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  height: 150,
+                  color: colPrimary,
+                  child: Center(
+                    child: Text(
+                      "Register Movie App",
+                      style: GoogleFonts.mcLaren(
+                        color: colSecondary,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  height: 20,
+                Container(
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: colPrimary,
+                        height: mediaSize.height,
+                      ),
+                      Container(
+                        height: mediaSize.height,
+                        padding: EdgeInsets.only(top: 80, left: 20),
+                        margin: EdgeInsets.only(left: 15),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(100),
+                            ),
+                            color: colSecondary),
+                        child: Form(
+                          key: _keyForm,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please Input Email';
+                                  }
+                                  return null;
+                                },
+                                keyboardType: TextInputType.emailAddress,
+                                controller: _tecEmail,
+                                decoration: InputDecoration(
+                                  hintText: "Email",
+                                  prefixIcon: Icon(Icons.email),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              TextFormField(
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please Input Password';
+                                  }
+                                  return null;
+                                },
+                                controller: _tecPassword,
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  hintText: "Password",
+                                  prefixIcon: Icon(Icons.lock),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              TextFormField(
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please Input Nama Lengkap';
+                                  }
+                                  return null;
+                                },
+                                controller: _tecNama,
+                                decoration: InputDecoration(
+                                  hintText: "Nama Lengkap",
+                                  prefixIcon: Icon(Icons.person),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              TextFormField(
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please Input No. Handphone';
+                                  }
+                                  return null;
+                                },
+                                controller: _tecNohp,
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  hintText: "No. handphone",
+                                  prefixIcon: Icon(Icons.call),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              TextFormField(
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please Input Alamat';
+                                  }
+                                  return null;
+                                },
+                                controller: _tecAlamat,
+                                minLines: 1,
+                                maxLines: 4,
+                                decoration: InputDecoration(
+                                  hintText: "Alamat",
+                                  prefixIcon: Icon(Icons.home),
+                                ),
+                              ),
+                              SizedBox(height: 40),
+                              MaterialButton(
+                                minWidth: 200,
+                                height: 60,
+                                color: colPrimary,
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                                onPressed: () => _cekForm(),
+                                child: Text(
+                                  "Register",
+                                  style: TextStyle(
+                                      color: colSecondary, fontSize: 20),
+                                ),
+                              ),
+                              SizedBox(height: 60),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFormInput() {
-    return Form(
-      key: _keyForm,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // buildTextField(
-          //   context: context,
-          //   hint: "Email",
-          //   controller: _tecEmail,
-          //   focus: _focEmail,
-          //   nextFocus: _focPassword,
-          //   inputType: TextInputType.emailAddress,
-          //   icon: Icons.person,
-          // ),
-          // buildTextField(
-          //   context: context,
-          //   hint: "Password",
-          //   controller: _tecPassword,
-          //   focus: _focPassword,
-          //   nextFocus: _focNama,
-          //   icon: Icons.lock,
-          //   obscure: true,
-          // ),
-          // buildTextField(
-          //   context: context,
-          //   hint: "Nama Lengkap",
-          //   controller: _tecNama,
-          //   focus: _focNama,
-          //   nextFocus: _focNohp,
-          //   icon: Icons.person,
-          //   textCapital: TextCapitalization.words,
-          // ),
-          // buildTextField(
-          //   context: context,
-          //   hint: "No. HP",
-          //   controller: _tecNohp,
-          //   focus: _focNohp,
-          //   nextFocus: _focAlamat,
-          //   icon: Icons.call,
-          //   inputType: TextInputType.phone,
-          // ),
-          // buildTextField(
-          //   context: context,
-          //   hint: "Alamat",
-          //   controller: _tecAlamat,
-          //   focus: _focAlamat,
-          //   icon: Icons.home,
-          //   textCapital: TextCapitalization.words,
-          // ),
-          SizedBox(height: 20),
-          _buildButton(),
-          SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-
-  Center _buildButton() {
-    return Center(
-      child: InkWell(
-        onTap: () => _cekForm(),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: colPrimary, width: 2),
-          ),
-          child: Text(
-            "Register",
-            style: GoogleFonts.mcLaren(
-                color: colPrimary, fontWeight: FontWeight.bold),
           ),
         ),
       ),
