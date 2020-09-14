@@ -5,19 +5,22 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class TambahMahasiswa extends StatefulWidget {
-  static String routeName = "/TambahMahasiswa";
+class EditMahasiswa extends StatefulWidget {
+  static String routeName = "/EditMahasiswa";
+  final data;
+
+  const EditMahasiswa({Key key, this.data}) : super(key: key);
   @override
-  _TambahMahasiswaState createState() => _TambahMahasiswaState();
+  _EditMahasiswaState createState() => _EditMahasiswaState();
 }
 
-class _TambahMahasiswaState extends State<TambahMahasiswa> {
+class _EditMahasiswaState extends State<EditMahasiswa> {
   final format = DateFormat("yyyy-MM-dd");
-  var _tecNim = TextEditingController();
-  var _tecNama = TextEditingController();
-  var _tecTmpLahir = TextEditingController();
-  var _tecTglLahir = TextEditingController();
-  var _tecAlamat = TextEditingController();
+  TextEditingController _tecNim;
+  TextEditingController _tecNama;
+  TextEditingController _tecTmpLahir;
+  TextEditingController _tecTglLahir;
+  TextEditingController _tecAlamat;
 
   List _jurusan = [
     "Teknik Informatika",
@@ -35,10 +38,16 @@ class _TambahMahasiswaState extends State<TambahMahasiswa> {
 
   @override
   void initState() {
+    _tecNim = TextEditingController(text: widget.data['nim']);
+    _tecNama = TextEditingController(text: widget.data['nama']);
+    _tecTmpLahir = TextEditingController(text: widget.data['tmpLahir']);
+    _tecTglLahir = TextEditingController(text: widget.data['tglLahir']);
+    _tecAlamat = TextEditingController(text: widget.data['alamat']);
+
     _dropDownMenuItemsJurusan = getDropDownMenuItemsJurusan();
-    _currentJurusan = _dropDownMenuItemsJurusan[0].value;
+    _currentJurusan = widget.data['jurusan'];
     _dropDownMenuItemsJk = getDropDownMenuItemsJk();
-    _currentJk = _dropDownMenuItemsJk[0].value;
+    _currentJk = widget.data['jk'];
     super.initState();
   }
 
@@ -81,7 +90,7 @@ class _TambahMahasiswaState extends State<TambahMahasiswa> {
     return true;
   }
 
-  Future _tambah() async {
+  Future _edit(int id) async {
     DatabaseHelper db = DatabaseHelper();
     if (_validasi()) {
       ModelMahasiswa mahasiswa = ModelMahasiswa(
@@ -92,8 +101,9 @@ class _TambahMahasiswaState extends State<TambahMahasiswa> {
           _tecTmpLahir.text,
           _tecTglLahir.text,
           _tecAlamat.text);
-      await db.saveMahasiswa(mahasiswa).then((_) => Navigator.pop(context));
-      messageSuccess("Berhasil ditambahkan");
+      mahasiswa.setId(id);
+      await db.updateMahasiswa(mahasiswa).then((_) => Navigator.pop(context));
+      messageSuccess("Berhasil diedit");
     } else {
       messageInfo("Harap isi semua data");
     }
@@ -104,7 +114,7 @@ class _TambahMahasiswaState extends State<TambahMahasiswa> {
     return Scaffold(
       appBar: AppBar(title: Text("Tambah Mahasiswa")),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _tambah(),
+        onPressed: () => _edit(widget.data['id']),
         child: Icon(Icons.check),
       ),
       body: Container(

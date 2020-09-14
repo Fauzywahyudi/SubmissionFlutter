@@ -21,6 +21,9 @@ class ModelMahasiswa {
     this._tglLahir = obj['tglLahir'];
     this._alamat = obj['alamat'];
   }
+
+  void setId(int value) => this._id = value;
+
   int get id => _id;
   String get nim => _nim;
   String get nama => _nama;

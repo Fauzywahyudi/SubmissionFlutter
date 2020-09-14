@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:crud_sqflite/views/add_mahasiswa.dart';
 import 'package:crud_sqflite/views/home.dart';
 import 'package:crud_sqflite/views/register.dart';
@@ -15,10 +16,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CRUD SQFlite Mahasiswa',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
       routes: {
         Login.routeName: (context) => Login(),
         Register.routeName: (context) => Register(),

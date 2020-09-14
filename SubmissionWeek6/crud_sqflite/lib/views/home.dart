@@ -1,8 +1,10 @@
 import 'dart:async';
-
 import 'package:crud_sqflite/models/model_user.dart';
 import 'package:crud_sqflite/sqflite/db_helper.dart';
+import 'package:crud_sqflite/utils/assets.dart';
 import 'package:crud_sqflite/views/add_mahasiswa.dart';
+import 'package:crud_sqflite/views/detail_mahasiswa.dart';
+import 'package:crud_sqflite/views/edit_mahasiswa.dart';
 import 'package:crud_sqflite/views/login.dart';
 import 'package:flutter/material.dart';
 
@@ -21,16 +23,22 @@ class _HomePageState extends State<HomePage> {
         .then((_) => Navigator.pushReplacementNamed(context, Login.routeName));
   }
 
-  Future _getAllUser() async {
-    DatabaseHelper db = DatabaseHelper();
-    List listData = await db.getAllUser();
-    print(listData.toString());
-  }
-
   Future<List> _getAllMahasiswa() async {
     DatabaseHelper db = DatabaseHelper();
     List listData = await db.getAllMahasiswa();
     return listData;
+  }
+
+  Future _deleteMahasiswa(int id) async {
+    DatabaseHelper db = DatabaseHelper();
+    await db.deleteMahasiswa(id).then((value) {
+      if (value == 1) {
+        messageSuccess("Berhasil dihapus");
+      } else {
+        messageFailed("Gagal dihapus");
+      }
+    });
+    handleRefresh();
   }
 
   Future<Null> handleRefresh() async {
@@ -74,8 +82,39 @@ class _HomePageState extends State<HomePage> {
       child: ListView.builder(
         itemCount: snapshot.data.length,
         itemBuilder: (context, index) {
-          return ListTile(
+          return ExpansionTile(
+            key: ValueKey(snapshot.data[index]['id']),
+            leading: Icon(Icons.person),
             title: Text(snapshot.data[index]['nama']),
+            subtitle: Text("NIM : " + snapshot.data[index]['nim']),
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  FlatButton(
+                      onPressed: () async {
+                        await pushPage(context,
+                            DetailMahasiswa(data: snapshot.data[index]));
+                        handleRefresh();
+                      },
+                      child: Text("Lihat")),
+                  FlatButton(
+                      onPressed: () =>
+                          _deleteMahasiswa(snapshot.data[index]['id']),
+                      child: Text("Hapus")),
+                  FlatButton(
+                      onPressed: () async {
+                        await pushPage(
+                            context,
+                            EditMahasiswa(
+                              data: snapshot.data[index],
+                            ));
+                        handleRefresh();
+                      },
+                      child: Text("Edit")),
+                ],
+              )
+            ],
           );
         },
       ),
@@ -87,20 +126,21 @@ class _HomePageState extends State<HomePage> {
   Drawer _buildDrawer() {
     return Drawer(
       child: Container(
-        child: SingleChildScrollView(
-            child: Column(
+        child: Column(
           children: [
             Container(
-              color: Colors.blue,
-              height: 200,
-            ),
+                color: Colors.blue,
+                child: Image.asset(
+                  "assets/images/logo.png",
+                  fit: BoxFit.cover,
+                )),
             ListTile(
               title: Text("Logout"),
               leading: Icon(Icons.exit_to_app),
               onTap: () => _logout(),
             ),
           ],
-        )),
+        ),
       ),
     );
   }

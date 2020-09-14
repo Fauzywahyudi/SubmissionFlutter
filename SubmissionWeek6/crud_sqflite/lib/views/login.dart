@@ -27,19 +27,9 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Future _getAllUser() async {
-    DatabaseHelper db = DatabaseHelper();
-    List listData = await db.getAllUser();
-    print(listData.toString());
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _getAllUser(),
-        child: Icon(Icons.check),
-      ),
       body: Container(
         child: SingleChildScrollView(
           child: Column(
