@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,8 +8,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:sekolah_googlemaps/models/sekolah_model.dart';
 import 'package:sekolah_googlemaps/views/login.dart';
+import 'package:sekolah_googlemaps/views/map_page.dart';
 
 class MyHomePage extends StatefulWidget {
+  final FirebaseUser user;
+
+  const MyHomePage({Key key, this.user}) : super(key: key);
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -16,11 +21,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseDatabase _database = FirebaseDatabase.instance;
-  final _sekolahController = TextEditingController();
   StreamSubscription<Event> _onSekolahAddedSubcription;
   StreamSubscription<Event> _onSekolahChangedSubcription;
   DatabaseReference _sekolahRef;
   FToast fToast;
+  SekolahModel _editModel;
 
   var _tecNamaSekolah = TextEditingController();
   var _tecDetailSekolah = TextEditingController();
@@ -90,11 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return _page == "Home"
         ? _buildList()
         : _page == "Tambah Sekolah" ? _buildAddData() : _buildEditData();
-    // if (_listSekolah.length > 0) {
-    //   return
-    // } else {
-    //   return Center(child: Text("Data Sekolah Kosong"));
-    // }
   }
 
   Container _buildList() {
@@ -113,6 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 _deleteSekolah(sekolah.key, index);
               },
               child: ListTile(
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MapPage(
+                              sekolah: sekolah,
+                            ))),
                 title: Text(
                   sekolah.namaSekolah,
                   style: TextStyle(
@@ -129,18 +135,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: Icon(Icons.edit, color: Colors.green),
                   onPressed: () => _editState(sekolah),
                 ),
-                // trailing: IconButton(
-                //   icon: (sekolah.completed)
-                //       ? Icon(
-                //           Icons.done_outline,
-                //           color: Colors.green,
-                //           size: 20,
-                //         )
-                //       : Icon(Icons.done, color: Colors.grey, size: 20),
-                //   onPressed: () {
-                //     _updateSekolah(sekolah);
-                //   },
-                // ),
               ),
             ),
           );
@@ -172,17 +166,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             SizedBox(height: 20),
             TextField(
-              controller: _tecLong,
+              controller: _tecLat,
               decoration: InputDecoration(
-                labelText: 'Longitute',
+                labelText: 'Latitude',
                 prefixIcon: Icon(Icons.location_on),
               ),
             ),
             SizedBox(height: 20),
             TextField(
-              controller: _tecLat,
+              controller: _tecLong,
               decoration: InputDecoration(
-                labelText: 'Latitud',
+                labelText: 'Longitude',
                 prefixIcon: Icon(Icons.location_on),
               ),
             ),
@@ -256,9 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       return FloatingActionButton(
         onPressed: () {
-          SekolahModel sekolah = SekolahModel(_tecNamaSekolah.text,
-              _tecDetailSekolah.text, _tecLong.text, _tecLat.text, false);
-          _updateSekolah(sekolah);
+          _updateSekolah(_editModel);
         },
         child: Icon(Icons.check),
       );
@@ -272,10 +264,32 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: [
             Container(
+              color: Colors.blue,
               height: 230,
-              child: Image.asset(
-                "assets/images/bg.png",
-                fit: BoxFit.cover,
+              child: Row(
+                children: [
+                  SizedBox(width: 10),
+                  ClipOval(
+                    child: Image.network(widget.user.photoUrl),
+                  ),
+                  SizedBox(width: 10),
+                  Text(widget.user.displayName,
+                      style: GoogleFonts.mcLaren(
+                          fontSize: 18, color: Colors.white))
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.email,
+                color: Colors.white,
+              ),
+              title: Text(
+                widget.user.email,
+                style: GoogleFonts.lato(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
             ListTile(
@@ -334,8 +348,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _addSekolah(
       String namaSekolah, String deskripsi, String long, String lat) async {
     if (_validasi()) {
-      SekolahModel sekolah =
-          SekolahModel(namaSekolah, deskripsi, long, lat, false);
+      SekolahModel sekolah = SekolahModel(namaSekolah, deskripsi, long, lat);
       await _sekolahRef.push().set(sekolah.toJson());
       setState(() {
         _page = "Home";
@@ -358,11 +371,20 @@ class _MyHomePageState extends State<MyHomePage> {
       _tecDetailSekolah.text = sekolah.deskripsi;
       _tecLong.text = sekolah.long;
       _tecLat.text = sekolah.lat;
+      _editModel = sekolah;
     });
   }
 
   Future<void> _updateSekolah(SekolahModel sekolah) async {
+    sekolah.namaSekolah = _tecNamaSekolah.text;
+    sekolah.deskripsi = _tecDetailSekolah.text;
+    sekolah.lat = _tecLat.text;
+    sekolah.long = _tecLong.text;
     await _sekolahRef.child(sekolah.key).set(sekolah.toJson());
+    setState(() {
+      _page = "Home";
+    });
+    _clear();
     _showToastSuccess("Berhasil diupdate");
   }
 

@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:sekolah_googlemaps/service/authentication.dart';
 import 'package:sekolah_googlemaps/views/homepage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -29,12 +28,11 @@ class _LoginPageState extends State<LoginPage> {
     final FirebaseUser user = result.user;
     _showToast();
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => MyHomePage()));
-    // _alertDialog(user);
-  }
-
-  Future<void> _signOut() async {
-    await _googleSignIn.signOut();
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyHomePage(
+                  user: user,
+                )));
   }
 
   @override
@@ -111,39 +109,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-
-  void _alertDialog(FirebaseUser user) {
-    AlertDialog dialog = AlertDialog(
-      content: Container(
-        height: 230,
-        child: Column(
-          children: [
-            Text(
-              "Sudah Login",
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue),
-            ),
-            Divider(),
-            ClipOval(
-              child: Image.network(user.photoUrl),
-            ),
-            SizedBox(height: 15),
-            Text("Anda login sebagai ${user.displayName}"),
-            Expanded(child: Container()),
-            FlatButton(
-              child: Text("Ok"),
-              onPressed: () => Navigator.pop(context),
-              color: Colors.green,
-            )
-          ],
-        ),
-      ),
-    );
-
-    showDialog(context: context, child: dialog);
   }
 
   void _showToast() {
