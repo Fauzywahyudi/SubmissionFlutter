@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "647559170556",
+    "firebase_url": "https://profilsekolah-c0c24.firebaseio.com",
+    "project_id": "profilsekolah-c0c24",
+    "storage_bucket": "profilsekolah-c0c24.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647559170556:android:f993032e98b4b93ee40a79",
+        "android_client_info": {
+          "package_name": "com.fauzywahyudi.sekolah_googlemaps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "647559170556-pfcdml8hmnp3nqn7hg1gvsosjaj75jcj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fauzywahyudi.sekolah_googlemaps",
+            "certificate_hash": "33c19609e8a728191df2826ae3fd42ee5d5b0c20"
+          }
+        },
+        {
+          "client_id": "647559170556-692i7gfnr5kd1fu390j9gpd8668tookr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS-wMikNH_xcTeYh28-ie_heyfRYBWjFE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "647559170556-692i7gfnr5kd1fu390j9gpd8668tookr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
