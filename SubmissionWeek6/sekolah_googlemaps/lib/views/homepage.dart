@@ -211,6 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 20),
             TextField(
               controller: _tecLong,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: 'Longitute',
                 prefixIcon: Icon(Icons.location_on),
@@ -219,6 +220,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 20),
             TextField(
               controller: _tecLat,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: 'Latitud',
                 prefixIcon: Icon(Icons.location_on),
