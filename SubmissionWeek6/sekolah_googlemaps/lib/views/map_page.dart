@@ -52,6 +52,10 @@ class _MapPageState extends State<MapPage> {
               child: Column(
                 children: [
                   ListTile(
+                    leading: Icon(
+                      Icons.school,
+                      color: Colors.blue,
+                    ),
                     title: Text(
                       widget.sekolah.namaSekolah,
                       style: GoogleFonts.mcLaren(
@@ -61,10 +65,13 @@ class _MapPageState extends State<MapPage> {
                         "Lat:${widget.sekolah.lat} Long:${widget.sekolah.long} "),
                   ),
                   ListTile(
+                    leading: Icon(
+                      Icons.location_on,
+                      color: Colors.red,
+                    ),
                     subtitle: Text(
                       widget.sekolah.deskripsi,
-                      style: GoogleFonts.mcLaren(
-                          color: Colors.blue, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.mcLaren(color: Colors.blue),
                     ),
                   ),
                 ],
