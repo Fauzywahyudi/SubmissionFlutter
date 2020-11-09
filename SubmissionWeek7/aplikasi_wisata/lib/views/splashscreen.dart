@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:aplikasi_wisata/views/home_page.dart';
 import 'package:aplikasi_wisata/views/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -11,13 +13,27 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    Timer(Duration(seconds: 4), () => nextPage());
+    Timer(Duration(seconds: 4), () => getCurrentUser());
     super.initState();
   }
 
-  void nextPage() {
+  void nextPage(Widget widget) {
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => LoginPage()));
+        context, MaterialPageRoute(builder: (context) => widget));
+  }
+
+  Future getCurrentUser() async {
+    FirebaseUser _user = await FirebaseAuth.instance.currentUser();
+    print("User: ${_user.displayName ?? "None"}");
+    if (_user != null) {
+      nextPage(HomePage(
+        user: _user,
+      ));
+    } else {
+      nextPage(LoginPage());
+    }
+
+    return _user;
   }
 
   @override

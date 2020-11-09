@@ -1,3 +1,4 @@
+import 'package:aplikasi_wisata/views/add_wisata.dart';
 import 'package:aplikasi_wisata/views/splashscreen.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Aplikasi Wisata',
       debugShowCheckedModeBanner: false,
+      routes: {
+        AddWisata.routeName: (context) => AddWisata(),
+      },
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
