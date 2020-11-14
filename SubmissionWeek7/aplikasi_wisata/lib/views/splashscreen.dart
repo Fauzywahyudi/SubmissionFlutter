@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aplikasi_wisata/tests/home.dart';
 import 'package:aplikasi_wisata/views/home_page.dart';
 import 'package:aplikasi_wisata/views/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future getCurrentUser() async {
     FirebaseUser _user = await FirebaseAuth.instance.currentUser();
-    print("User: ${_user.displayName ?? "None"}");
+    // print("User: ${_user.displayName ?? "None"}");
     if (_user != null) {
       nextPage(HomePage(
         user: _user,

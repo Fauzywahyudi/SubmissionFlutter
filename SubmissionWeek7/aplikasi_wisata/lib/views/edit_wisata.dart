@@ -11,17 +11,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddWisata extends StatefulWidget {
-  static const routeName = '/AddWisata';
+  static const routeName = '/EditWisata';
+  final Wisata dataWisata;
+
+  const AddWisata({Key key, this.dataWisata}) : super(key: key);
   @override
   _AddWisataState createState() => _AddWisataState();
 }
 
 class _AddWisataState extends State<AddWisata> {
-  var _tecNama = TextEditingController();
-  var _tecLokasi = TextEditingController();
-  var _tecDeskripsi = TextEditingController();
-  var _tecLat = TextEditingController();
-  var _tecLong = TextEditingController();
+  var _tecNama;
+  var _tecLokasi;
+  var _tecDeskripsi;
+  var _tecLat;
+  var _tecLong;
 
   String _errNama;
   String _errLokasi;
@@ -59,6 +62,11 @@ class _AddWisataState extends State<AddWisata> {
   void initState() {
     super.initState();
     _wisataRef = _database.reference().child("wisata");
+    _tecNama = TextEditingController(text: widget.dataWisata.nama);
+    _tecLokasi = TextEditingController(text: widget.dataWisata.lokasi);
+    _tecDeskripsi = TextEditingController(text: widget.dataWisata.deskripsi);
+    _tecLat = TextEditingController(text: widget.dataWisata.lat.toString());
+    _tecLong = TextEditingController(text: widget.dataWisata.long.toString());
     _errNama = null;
     _errLokasi = null;
     _errDeskripsi = null;

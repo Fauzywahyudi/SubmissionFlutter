@@ -1,3 +1,4 @@
+import 'package:aplikasi_wisata/tests/home.dart';
 import 'package:aplikasi_wisata/views/add_wisata.dart';
 import 'package:aplikasi_wisata/views/splashscreen.dart';
 import 'package:flutter/material.dart';
